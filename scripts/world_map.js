@@ -70,7 +70,13 @@ const requestData = async function() {
     .append('title')
       .text(d=>d.properties.name);//【】hover是怎么实现的？？
 
-  
+  g.selectAll('path')
+    .data(countries.features)
+    .enter().append('path')
+      .attr('d', pathGenerator)
+      .attr('class', 'country')
+    .append('title')
+      .text(d=>d.properties.name);//【】hover是怎么实现的？？ 
   
 
 };
