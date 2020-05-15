@@ -45,7 +45,5 @@ const processWorldData = (dataOriginal, AlphaToNum) => {
 
         newData[index].push(item);
     });
-
-    console.log(newData);
     return newData;
 };
