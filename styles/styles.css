@@ -1,53 +1,78 @@
 /*world_map*/
 body {
-  padding: 0;
-  margin: 0;
-  overflow: hidden;
-  /*background-color: grey; */
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
 }
 
-.Sphere{
-	fill: lightblue;
+.Sphere {
+    fill: lightblue;
 }
 
 .allcountry {
-  fill: white;
-  stroke: rgb(108, 99, 99);
-  stroke-width: 0.2px;
+    fill: white;
+    stroke: rgb(108, 99, 99);
+    stroke-width: 0.2px;
 }
 
 .country {
-  fill: purple;
-  stroke: rgb(108, 99, 99);
-  stroke-width: 0.2px;
+    fill: purple;
+    stroke: rgb(108, 99, 99);
+    stroke-width: 0.2px;
 }
 
-.country:hover{
-	fill:blueviolet;
+.country:hover {
+    fill: blueviolet;
 }
-
 
 path {
-  fill: none;
-  stroke: #333;
-  stroke-width: .5px;
+    fill: none;
+    stroke: #333;
+    stroke-width: 0.5px;
 }
 
 .land-boundary {
-  stroke-width: 1px;
+    stroke-width: 1px;
 }
 
 .county-boundary {
-  stroke: #ddd;
+    stroke: #ddd;
 }
 
 .site {
-	stroke-width: .5px;
-  stroke: #333;
-  fill: #9cf;
+    stroke-width: 0.5px;
+    stroke: #333;
+    fill: #9cf;
 }
 
 #slider3 {
-  margin: 20px 0 10px 20px;
-  width: 900px;
+    margin: 20px 0 10px 20px;
+    width: 900px;
+}
+
+/* ========== World Line Chart Styles ========== */
+#world-line .gridlines line {
+    stroke: #bbb;
+}
+
+#world-line .gridlines .domain {
+    stroke: none;
+}
+
+#world-line path#localized-line {
+    stroke: steelblue;
+    stroke-width: 1.5px;
+    fill: none;
+}
+
+#world-line path#national-line {
+    stroke: red;
+    stroke-width: 1.5px;
+    fill: none;
+}
+
+#world-line path#open-line {
+    stroke: green;
+    stroke-width: 1.5px;
+    fill: none;
 }
