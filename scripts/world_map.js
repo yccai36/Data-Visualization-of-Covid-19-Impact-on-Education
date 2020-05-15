@@ -17,7 +17,7 @@ const generateWorldMap = async function () {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    const world = await d3.json("../datasets/world.json"); // https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json
+    const world = await d3.json("../datasets/world.json"); // https://raw.githubusercontent.com/plotly/plotly.js/master/dist/topojson/world_50m.json
     console.log("world", world);
 
     const projection = d3.geoNaturalEarth1();
@@ -37,7 +37,7 @@ const generateWorldMap = async function () {
         })
     );
 
-    const countries = topojson.feature(world, world.objects.countries);
+    const countries = topojson.feature(world, world.objects.ne_50m_admin_0_countries);
     console.log("countries", countries);
 
     const dataOriginal = await d3.csv("../datasets/covid_impact_education.csv");
@@ -57,11 +57,11 @@ const generateWorldMap = async function () {
         .append("path")
             .attr("d", pathGenerator)
             .attr("class", "country")
-            .attr("id", (d) => {
-                return "ISO" + d.id;
+            .attr("id", (d) => {//
+                return d.properties.ISO_A3;
             })
         .append('title')
-            .text(d=>d.properties.name);
+            .text(d=>d.properties.NAME);
 
     var timer;
     d3.select('#world-map-play') 
@@ -98,34 +98,33 @@ const generateWorldMap = async function () {
         var countries_localized = [];
         var countries_national = [];
         var countries_reopen = [];
-    
         surveyData[day].forEach((row) => {
             if (row.scale == "Localized") {
-                countries_localized.push(row.numISO);
+                countries_localized.push(row.alphaISO);
             } else if (row.scale == "National") {
-                countries_national.push(row.numISO);
+                countries_national.push(row.alphaISO);
             } else if (row.scale == "Open") {
-                countries_reopen.push(row.numISO);
+                countries_reopen.push(row.alphaISO);
             }
     
         }); 
     
         countries_localized.forEach((id) => {
-            g.select('path#ISO'+id)
+            g.select('path#'+id)
                 .style("fill", 'orange' )
                 .append('title')
                 .text('localized');
         });
     
         countries_national.forEach((id) => {
-            g.select('path#ISO'+id)
+            g.select('path#'+id)
                 .style("fill", 'red' )
                 .append('title')
                 .text('national');
         });
 
         countries_reopen.forEach((id) => {
-            g.select('path#ISO'+id)
+            g.select('path#'+id)
                 .style("fill", 'lightgreen' )
                 .append('title')
                 .text('reopen!');//d=>d.properties.name
