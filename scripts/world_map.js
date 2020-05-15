@@ -1,3 +1,11 @@
+function sleep(milliseconds) {
+    const date = Date.now();
+    let currentDate = null;
+    do {
+      currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
+}
+
 const generateWorldMap = async function () {
     const svg = d3.select("#svg1");
     const width = svg.attr("width");
@@ -33,36 +41,33 @@ const generateWorldMap = async function () {
     const countries = topojson.feature(world, world.objects.countries);
     console.log("countries", countries);
 
-    var surveyData = await d3.csv("../datasets/covid_impact_education.csv");
-    console.log("surveyData", surveyData);
+    const dataOriginal = await d3.csv("../datasets/covid_impact_education.csv");
+    const dataISO = await d3.json("../datasets/ISO.json");
+    const AlphaToNum = processISOData(dataISO);
+    let surveyData = processWorldData(dataOriginal, AlphaToNum);
+    console.log("surveyData", surveyData[10][0].numISO);
 
     var countries_localized = [];
     var countries_national = [];
     var countries_reopen = [];
 
-    surveyData.forEach((row) => {
-        var date = "16/05/2020";
-        if (row.Date == date) {
-            if (row.Scale == "Localized") {
-                // console.log("Localized country",row.Country)
-                countries_localized.push(row.Country);
-                // console.log("countries_localized", countries_localized)
-            } else if (row.Scale == "National") {
-                // console.log("National country",row.Country)
-                countries_national.push(row.Country);
-            } else if (row.Scale == "Open") {
-                // console.log("Open country",row.Country)
-                countries_reopen.push(row.Country);
+    var row =  surveyData[0];
+    console.log("-----------------", row[0].numISO);
+    // surveyData.forEach((row) => {
+        // sleep(2000);
+        // console.log("surveyData", row);
+        // var date = "16/05/2020";
+        // if (row.Date == date) {
+            if (row[0].scale == "Localized") {
+                countries_localized.push(row[0].numISO);
+            } else if (row[0].scale == "National") {
+                countries_national.push(row[0].numISO);
+            } else if (row[0].scale == "Open") {
+                countries_reopen.push(row[0].numISO);
             }
-        }
-    });
-
-    const colorScale = d3
-        .scaleQuantile()
-        .domain(["Localized", "National"])
-        .range(["#fff", "#d1e8ed"]);
-    console.log("colorScale", colorScale);
-
+        // }
+    // });
+    console.log("-----------------", countries_localized);
     g.selectAll("path")
         .data(countries.features)
         .enter()
@@ -70,26 +75,27 @@ const generateWorldMap = async function () {
         .attr("d", pathGenerator)
         .attr("class", "allcountry")
         .attr("id", (d) => {
-            //console.log(d.properties.name);
-            return d.properties.name;
-        });
+            console.log("llllllllllll"+d.properties.name)
+            return d.properties.name;});// console.log("llllllllllll"+d.id);//return d.id;//
 
-    console.log("Hello");
 
-    // countries_localized.forEach( country => {
+    g.select('path#China')
+        .style("fill", 'orange' );
+
+    countries_localized.forEach( country => {
     //   g.select('path#'+country)
     //     .style("fill", 'orange' );
-    // });
+    });
 
-    // countries_national.forEach( country => {
+    countries_national.forEach( country => {
     //   g.select('path#'+country)
     //     .style("fill", 'red' );
-    // });
+    });
 
-    // countries_reopen.forEach( country => {
+    countries_reopen.forEach( country => {
     //   g.select('path#'+country)
     //     .style("fill", 'lightgreen' );
-    // });
+    });
 
     // g.selectAll('path')
     //   .data(countries.features)
