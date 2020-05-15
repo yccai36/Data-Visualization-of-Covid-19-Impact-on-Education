@@ -6,7 +6,7 @@ function sleep(milliseconds) {
     } while (currentDate - date < milliseconds);
 }
 
-const generateWorldMap = async function () {
+const generateWorldMap = async function (day) {
     const svg = d3.select("#svg1");
     const width = svg.attr("width");
     const height = svg.attr("height");
@@ -45,29 +45,29 @@ const generateWorldMap = async function () {
     const dataISO = await d3.json("../datasets/ISO.json");
     const AlphaToNum = processISOData(dataISO);
     let surveyData = processWorldData(dataOriginal, AlphaToNum);
-    console.log("surveyData", surveyData[10][0].numISO);
-
+    console.log("=-=-=-=-=-==-", typeof(surveyData));
     var countries_localized = [];
     var countries_national = [];
     var countries_reopen = [];
-
-    var row = surveyData[0];
-    console.log("-----------------", row[0].numISO);
-    // surveyData.forEach((row) => {
-    // sleep(2000);
-    // console.log("surveyData", row);
-    // var date = "16/05/2020";
-    // if (row.Date == date) {
-    if (row[0].scale == "Localized") {
-        countries_localized.push(row[0].numISO);
-    } else if (row[0].scale == "National") {
-        countries_national.push(row[0].numISO);
-    } else if (row[0].scale == "Open") {
-        countries_reopen.push(row[0].numISO);
-    }
-    // }
+    // var day = 70;
+    // surveyData.forEach((day) => {
+        // sleep(2000);
+        // day.forEach((row) => {
+        surveyData[day].forEach((row) => {
+            if (row.scale == "Localized") {
+                countries_localized.push(row.numISO);
+            } else if (row.scale == "National") {
+                countries_national.push(row.numISO);
+            } else if (row.scale == "Open") {
+                countries_reopen.push(row.numISO);
+            }
+    
+        });
+        
     // });
-    console.log("-----------------", countries_localized);
+
+
+
     g.selectAll("path")
         .data(countries.features)
         .enter()
@@ -78,22 +78,31 @@ const generateWorldMap = async function () {
             return "ISO" + d.id;
         });
 
-    g.select("path#ISO" + "156").style("fill", "orange");
-
-    countries_localized.forEach((country) => {
-        //   g.select('path#'+country)
-        //     .style("fill", 'orange' );
+    countries_localized.forEach((id) => {
+          g.select('path#ISO'+id)
+            .style("fill", 'orange' );
     });
 
-    countries_national.forEach((country) => {
-        //   g.select('path#'+country)
-        //     .style("fill", 'red' );
+    countries_national.forEach((id) => {
+          g.select('path#ISO'+id)
+            .style("fill", 'red' );
     });
 
-    countries_reopen.forEach((country) => {
-        //   g.select('path#'+country)
-        //     .style("fill", 'lightgreen' );
+    countries_reopen.forEach((id) => {
+          g.select('path#ISO'+id)
+            .style("fill", 'lightgreen' );
     });
+
+
+};
+
+
+generateWorldMap(20);
+sleep(2000);
+generateWorldMap(10);
+
+
+
 
     // g.selectAll('path')
     //   .data(countries.features)
@@ -102,5 +111,3 @@ const generateWorldMap = async function () {
     //     .attr('class', 'country')
     //   .append('title')
     //     .text(d=>d.properties.name);//【】hover是怎么实现的？？
-};
-generateWorldMap();
