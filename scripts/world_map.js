@@ -2,7 +2,7 @@ function sleep(milliseconds) {
     const date = Date.now();
     let currentDate = null;
     do {
-      currentDate = Date.now();
+        currentDate = Date.now();
     } while (currentDate - date < milliseconds);
 }
 
@@ -51,21 +51,21 @@ const generateWorldMap = async function () {
     var countries_national = [];
     var countries_reopen = [];
 
-    var row =  surveyData[0];
+    var row = surveyData[0];
     console.log("-----------------", row[0].numISO);
     // surveyData.forEach((row) => {
-        // sleep(2000);
-        // console.log("surveyData", row);
-        // var date = "16/05/2020";
-        // if (row.Date == date) {
-            if (row[0].scale == "Localized") {
-                countries_localized.push(row[0].numISO);
-            } else if (row[0].scale == "National") {
-                countries_national.push(row[0].numISO);
-            } else if (row[0].scale == "Open") {
-                countries_reopen.push(row[0].numISO);
-            }
-        // }
+    // sleep(2000);
+    // console.log("surveyData", row);
+    // var date = "16/05/2020";
+    // if (row.Date == date) {
+    if (row[0].scale == "Localized") {
+        countries_localized.push(row[0].numISO);
+    } else if (row[0].scale == "National") {
+        countries_national.push(row[0].numISO);
+    } else if (row[0].scale == "Open") {
+        countries_reopen.push(row[0].numISO);
+    }
+    // }
     // });
     console.log("-----------------", countries_localized);
     g.selectAll("path")
@@ -75,26 +75,24 @@ const generateWorldMap = async function () {
         .attr("d", pathGenerator)
         .attr("class", "allcountry")
         .attr("id", (d) => {
-            console.log("llllllllllll"+d.properties.name)
-            return d.properties.name;});// console.log("llllllllllll"+d.id);//return d.id;//
+            return "ISO" + d.id;
+        });
 
+    g.select("path#ISO" + "156").style("fill", "orange");
 
-    g.select('path#China')
-        .style("fill", 'orange' );
-
-    countries_localized.forEach( country => {
-    //   g.select('path#'+country)
-    //     .style("fill", 'orange' );
+    countries_localized.forEach((country) => {
+        //   g.select('path#'+country)
+        //     .style("fill", 'orange' );
     });
 
-    countries_national.forEach( country => {
-    //   g.select('path#'+country)
-    //     .style("fill", 'red' );
+    countries_national.forEach((country) => {
+        //   g.select('path#'+country)
+        //     .style("fill", 'red' );
     });
 
-    countries_reopen.forEach( country => {
-    //   g.select('path#'+country)
-    //     .style("fill", 'lightgreen' );
+    countries_reopen.forEach((country) => {
+        //   g.select('path#'+country)
+        //     .style("fill", 'lightgreen' );
     });
 
     // g.selectAll('path')
