@@ -1,7 +1,7 @@
 // process US school closure data
 // return an array grouped by dates
 const processUSDate = (dataOriginal) => {
-    const dateParser = d3.timeParse("%m/%d/%Y");
+    const dateParser = d3.timeParse("%m/%d/%y");
 
     let dataFiltered = dataOriginal.filter((element) => {
         return element["State Abbreviation"].length === 2;

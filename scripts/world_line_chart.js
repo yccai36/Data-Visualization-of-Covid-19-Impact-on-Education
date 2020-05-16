@@ -103,7 +103,7 @@ const generateWorldLineChart = async () => {
     const xGridlines = d3
         .axisBottom(dateScale)
         .tickSize(-plotHeight)
-        .ticks(d3.timeWeek.every(2))
+        .ticks(d3.timeWeek.every(1))
         .tickFormat("");
 
     // Draw gridlines
@@ -134,7 +134,7 @@ const generateWorldLineChart = async () => {
         .axisBottom(dateScale)
         .tickFormat(d3.timeFormat("%m/%d"))
         .tickSize(0)
-        .ticks(d3.timeWeek.every(2))
+        .ticks(d3.timeWeek.every(1))
         .tickPadding(10);
 
     // Draw Axises
