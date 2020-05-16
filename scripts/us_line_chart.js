@@ -1,3 +1,4 @@
+// process data to draw US line chart
 const processDataUSLine = (dataOriginal) => {
     let data = processUSDate(dataOriginal);
 
@@ -61,11 +62,8 @@ const generateUSLineChart = async () => {
     // Scales
     const stateScale = d3.scaleLinear().domain([0, 50]).range([plotHeight, 0]);
 
-    // const firstDate = dataLocalized[0]["date"];
-    // const lastDate = dataLocalized[dataLocalized.length - 1]["date"];
-
-    const firstDate = new Date(2020, 2, 15);
-    const lastDate = new Date(2020, 2, 25);
+    const firstDate = new Date(2020, 2, 14, 12);
+    const lastDate = new Date(2020, 2, 24, 12);
 
     const dateScale = d3
         .scaleTime()
@@ -140,6 +138,9 @@ const generateUSLineChart = async () => {
         .x((d) => dateScale(d["date"]))
         .y((d) => stateScale(d["count"]));
 
+    const lineWidth = 2.5;
+    const pointRadius = 3;
+
     // line - ordered
     orderedPlot
         .append("path")
@@ -147,7 +148,7 @@ const generateUSLineChart = async () => {
         .attr("id", "ordered-line")
         .attr("fill", "none")
         .attr("stroke", "red")
-        .attr("stroke-width", 2)
+        .attr("stroke-width", lineWidth)
         .attr("d", lineGenerator);
 
     // points - ordered
@@ -156,7 +157,7 @@ const generateUSLineChart = async () => {
         .data(dataOrdered)
         .join("circle")
         .attr("class", "point ordered-point")
-        .attr("r", 2)
+        .attr("r", pointRadius)
         .attr("cx", (d) => dateScale(d["date"]))
         .attr("cy", (d) => stateScale(d["count"]))
         .attr("fill", "white")
@@ -170,7 +171,7 @@ const generateUSLineChart = async () => {
         .attr("id", "recommended-line")
         .attr("fill", "none")
         .attr("stroke", "steelblue")
-        .attr("stroke-width", 2)
+        .attr("stroke-width", lineWidth)
         .attr("d", lineGenerator);
 
     // points - recommended
@@ -179,12 +180,80 @@ const generateUSLineChart = async () => {
         .data(dataRecommended)
         .join("circle")
         .attr("class", "point recommended-point")
-        .attr("r", 2)
+        .attr("r", pointRadius)
         .attr("cx", (d) => dateScale(d["date"]))
         .attr("cy", (d) => stateScale(d["count"]))
         .attr("fill", "white")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1);
+
+    // ==== User Interactive Start === //
+
+    let activeGroup = svg
+        .append("g")
+        .attr("class", "active-group")
+        .attr(
+            "transform",
+            "translate(" + padding.left + ", " + padding.top + ")"
+        )
+        .attr("visibility", "hidden");
+
+    let markerLine = activeGroup
+        .append("line")
+        .attr("class", "active-marker-line")
+        .attr("fill", "none")
+        .attr("stroke", "#aaa")
+        .attr("stroke-width", "1")
+        .attr("y1", 0)
+        .attr("y2", plotHeight);
+
+    let activeRect = activeGroup
+        .append("rect")
+        .attr("class", "active-rect")
+        .attr("width", plotWidth)
+        .attr("height", plotHeight)
+        .attr("fill", "none")
+        .attr("pointer-events", "all");
+
+    let tooltip = d3
+        .select("#us-line-div")
+        .append("div")
+        .attr("class", "line-tooltip");
+
+    // find the closest date to the mouse position
+    const findDate = (data, mouseDate) => {
+        let bisector = d3.bisector((d) => d["date"]).right;
+        let index = bisector(data, mouseDate);
+        // special cases: index == 0, index === data.length
+        if (index === 0) return data[index]["date"];
+        if (index === data.length) return data[index - 1]["date"];
+
+        const date1 = data[index - 1]["date"];
+        const date2 = data[index]["date"];
+        return mouseDate - date1 < date2 - mouseDate ? date1 : date2;
+    };
+
+    // Add interactive event handlers
+    activeRect.on("mouseover", function () {
+        activeGroup.style("visibility", "visible");
+    });
+
+    activeRect.on("mouseout", function () {
+        activeGroup.style("visibility", "hidden");
+    });
+
+    activeRect.on("mousemove", function () {
+        // get mouse position
+        let [mouseX, mouseY] = d3.mouse(this);
+        // get mouse corresponding date
+        let mouseDate = dateScale.invert(mouseX);
+        // find the closest date
+        let newDate = findDate(dataOrdered, mouseDate);
+        let markerX = dateScale(newDate);
+        markerLine.attr("x1", markerX).attr("x2", markerX);
+    });
+
+    // ==== User Interactive End === //
 };
 
 generateUSLineChart();

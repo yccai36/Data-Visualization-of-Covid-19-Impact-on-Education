@@ -28,7 +28,7 @@ const processWorldData = (dataOriginal, AlphaToNum) => {
         let dateString = element["Date"];
         let date = dateParser(dateString);
         let alphaISO = element["ISO"];
-        let country = element["Country"];
+        let country = element["Country"].trim();
         let scale = element["Scale"];
         let numISO = AlphaToNum[alphaISO];
 
