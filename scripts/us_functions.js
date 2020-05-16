@@ -4,8 +4,13 @@ const processUSDate = (dataOriginal) => {
     const dateParser = d3.timeParse("%m/%d/%y");
 
     let dataFiltered = dataOriginal.filter((element) => {
-        return element["State Abbreviation"].length === 2;
+        return (
+            element["State Abbreviation"].length === 2 &&
+            element["State Abbreviation"] != "VI"
+        );
     });
+
+    console.log(dataFiltered);
 
     let dates = {
         "3/15/20": 0,
