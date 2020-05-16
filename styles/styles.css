@@ -1,4 +1,4 @@
-/*world_map*/
+/* ========== World Map Styles ========== */
 #world-map body {
     padding: 0;
     margin: 0;
@@ -10,13 +10,14 @@
 
 #world-map .country {
     fill: white;
-    stroke: rgb(108, 99, 99);
+    stroke: rgb(27, 26, 26);
     stroke-width: 0.2px;
 }
 
-/* #world-map .country:hover{
-	fill:blueviolet;
-} */
+#world-map .country:hover {
+    fill-opacity: 0.4 !important;
+    stroke-width: 0.5px !important;
+}
 
 #world-map path {
     fill: none;
@@ -39,56 +40,6 @@
 }
 #world-map-clock {
     left: 65px;
-}
-body {
-    padding: 0;
-    margin: 0;
-    /* overflow: hidden; */
-}
-
-.Sphere {
-    fill: lightblue;
-}
-
-.allcountry {
-    fill: white;
-    stroke: rgb(108, 99, 99);
-    stroke-width: 0.2px;
-}
-
-.country {
-    fill: purple;
-    stroke: rgb(108, 99, 99);
-    stroke-width: 0.2px;
-}
-
-.country:hover {
-    fill: blueviolet;
-}
-
-path {
-    fill: none;
-    stroke: #333;
-    stroke-width: 0.5px;
-}
-
-.land-boundary {
-    stroke-width: 1px;
-}
-
-.county-boundary {
-    stroke: #ddd;
-}
-
-.site {
-    stroke-width: 0.5px;
-    stroke: #333;
-    fill: #9cf;
-}
-
-#slider3 {
-    margin: 20px 0 10px 20px;
-    width: 900px;
 }
 
 /* ========== World Line Chart Styles ========== */
