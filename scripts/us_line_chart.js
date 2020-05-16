@@ -51,6 +51,10 @@ const generateUSLineChart = async () => {
 
     const width = 900;
     const height = 500;
+    const div = d3
+        .select("#us-line-div")
+        .style("width", width + "px")
+        .style("height", height + "px");
     const svg = d3
         .select("#us-line")
         .attr("width", width)
@@ -218,39 +222,77 @@ const generateUSLineChart = async () => {
     let tooltip = d3
         .select("#us-line-div")
         .append("div")
-        .attr("class", "line-tooltip");
+        .attr("class", "line-tooltip")
+        .style("visibility", "hidden");
 
     // find the closest date to the mouse position
     const findDate = (data, mouseDate) => {
         let bisector = d3.bisector((d) => d["date"]).right;
         let index = bisector(data, mouseDate);
         // special cases: index == 0, index === data.length
-        if (index === 0) return data[index]["date"];
-        if (index === data.length) return data[index - 1]["date"];
+        if (index === 0) return [index, data[index]["date"]];
+        if (index === data.length) return [index - 1, data[index - 1]["date"]];
 
         const date1 = data[index - 1]["date"];
         const date2 = data[index]["date"];
-        return mouseDate - date1 < date2 - mouseDate ? date1 : date2;
+        return mouseDate - date1 < date2 - mouseDate
+            ? [index - 1, date1]
+            : [index, date2];
     };
 
     // Add interactive event handlers
     activeRect.on("mouseover", function () {
         activeGroup.style("visibility", "visible");
+
+        tooltip.style("visibility", "visible");
     });
 
     activeRect.on("mouseout", function () {
         activeGroup.style("visibility", "hidden");
+
+        tooltip.style("visibility", "hidden");
     });
 
     activeRect.on("mousemove", function () {
+        // marker line
         // get mouse position
         let [mouseX, mouseY] = d3.mouse(this);
         // get mouse corresponding date
         let mouseDate = dateScale.invert(mouseX);
         // find the closest date
-        let newDate = findDate(dataOrdered, mouseDate);
+        let [newIndex, newDate] = findDate(dataOrdered, mouseDate);
         let markerX = dateScale(newDate);
         markerLine.attr("x1", markerX).attr("x2", markerX);
+
+        // tooltip content
+        let dateString = newDate.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+        // let dateString = newDate.toDateString();
+        let countOrdered = dataOrdered[newIndex]["count"];
+        let countRecommended = dataRecommended[newIndex]["count"];
+        let tooltipContent = `<p>${dateString}</p><p>State ordered closure: ${countOrdered}</p><p>State recommended closure: ${countRecommended}</p>`;
+
+        // tooltip position
+        let tooltipTop = padding.top + mouseY + 20;
+        let tooltipBottom = plotHeight - mouseY + padding.bottom + 20;
+        let tooltipLeft = padding.left + markerX + 20;
+        let tooltipRight = plotWidth - markerX + padding.right + 20;
+
+        if (tooltipTop < height * (2 / 3)) {
+            tooltip.style("top", tooltipTop + "px").style("bottom", "auto");
+        } else {
+            tooltip.style("top", "auto").style("bottom", tooltipBottom + "px");
+        }
+
+        if (tooltipLeft < width * (2 / 3)) {
+            tooltip.style("left", tooltipLeft + "px").style("right", "auto");
+        } else {
+            tooltip.style("left", "auto").style("right", tooltipRight + "px");
+        }
+        tooltip.html(tooltipContent);
     });
 
     // ==== User Interactive End === //

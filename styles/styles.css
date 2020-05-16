@@ -1,41 +1,42 @@
 /* ========== World Map Styles ========== */
 #world-map body {
-  padding: 0;
-  margin: 0;
+    padding: 0;
+    margin: 0;
 }
 
-#world-map .Sphere{
-	fill: lightblue;
+#world-map .Sphere {
+    fill: lightblue;
 }
 
 #world-map .country {
-  fill: white;
-  stroke: rgb(108, 99, 99);
-  stroke-width: 0.2px;
+    fill: white;
+    stroke: rgb(108, 99, 99);
+    stroke-width: 0.2px;
 }
 
 #world-map path {
-  fill: none;
-  stroke: #333;
-  stroke-width: .5px;
+    fill: none;
+    stroke: #333;
+    stroke-width: 0.5px;
 }
 
 #world-map-wrapper {
-  width: 960px;
-  margin: -30px auto 0;
+    width: 960px;
+    margin: -30px auto 0;
 }
 
-#world-map-play, #world-map-clock {
-  position: absolute;
-  top: 15px;
+#world-map-play,
+#world-map-clock {
+    position: absolute;
+    top: 15px;
 }
 
 #world-map-play {
-  left: 15px;
+    left: 15px;
 }
 
 #world-map-clock {
-  left: 65px;
+    left: 65px;
 }
 
 #world-map .Sphere {
@@ -108,21 +109,19 @@
     width: 960px;
     margin: -30px auto 0;
   } */
-  
-  #us-map-clock #us-map-play{
+
+#us-map-clock #us-map-play {
     position: absolute;
     top: 20px;
-  }
-  
-  #us-map-clock {
-    
+}
+
+#us-map-clock {
     left: 65px;
-  }
-  
-  #us-map-play{
-    
+}
+
+#us-map-play {
     left: 15px;
-  }
+}
 
 /* ========== US Line Chart Styles ========== */
 #us-line .gridlines line {
@@ -133,7 +132,7 @@
     stroke: none;
 }
 
-#us-line path#ordered-line {
+/* #us-line path#ordered-line {
     stroke: red;
     stroke-width: 1.5px;
     fill: none;
@@ -143,4 +142,16 @@
     stroke: steelblue;
     stroke-width: 1.5px;
     fill: none;
+} */
+
+#us-line-div {
+    position: relative;
+}
+
+#us-line-div .line-tooltip {
+    background-color: white;
+    border: 1px black solid;
+    border-radius: 5px;
+    padding: 0 10px;
+    position: absolute;
 }
