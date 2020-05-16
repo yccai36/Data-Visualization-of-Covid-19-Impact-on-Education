@@ -20,6 +20,19 @@ const processUSDate = (dataOriginal) => {
         "3/24/20": 9,
     };
 
+    let numToDate = [
+        "3/15/20",
+        "3/16/20",
+        "3/17/20",
+        "3/18/20",
+        "3/19/20",
+        "3/20/20",
+        "3/21/20",
+        "3/22/20",
+        "3/23/20",
+        "3/24/20",
+    ];
+
     let newData = [];
     for (let i = 0; i < Object.keys(dates).length; i++) {
         newData.push([]);
@@ -40,20 +53,39 @@ const processUSDate = (dataOriginal) => {
         let schoolNum = element["State Number of Public Schools"];
         let enrollmentNum = element["State Public School Enrollment"];
 
-        let item = {
-            stateName: stateName,
-            stateAbbr: stateAbbr,
-            startDate: startDate,
-            startDateIndex: startDateIndex,
-            startDateString: startDateString,
-            status: status,
-            schoolNum: schoolNum,
-            enrollmentNum: enrollmentNum,
-        };
-
         for (let i = startDateIndex; i < newData.length; i++) {
+            let item = {
+                stateName: stateName,
+                stateAbbr: stateAbbr,
+                startDate: startDate,
+                startDateIndex: startDateIndex,
+                startDateString: startDateString,
+                status: status,
+                schoolNum: schoolNum,
+                enrollmentNum: enrollmentNum,
+                dateIndex: i,
+                dateString: numToDate[i],
+                date: dateParser(numToDate[i]),
+            };
             newData[i].push(item);
         }
     });
+
+    let emptyItem = {
+        stateName: "N/A",
+        stateAbbr: "N/A",
+        startDate: "N/A",
+        startDateIndex: "N/A",
+        startDateString: "N/A",
+        status: "N/A",
+        schoolNum: 0,
+        enrollmentNum: 0,
+        dateIndex: 0,
+        dateString: numToDate[0],
+        date: dateParser(numToDate[0]),
+    };
+
+    newData[0].push(emptyItem);
+
     return newData;
 };
