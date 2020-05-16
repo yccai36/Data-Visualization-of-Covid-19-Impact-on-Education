@@ -10,8 +10,6 @@ const processUSDate = (dataOriginal) => {
         );
     });
 
-    console.log(dataFiltered);
-
     let dates = {
         "3/15/20": 0,
         "3/16/20": 1,
@@ -44,7 +42,7 @@ const processUSDate = (dataOriginal) => {
     }
 
     dataFiltered.forEach((element) => {
-        let stateName = element["State"];
+        let stateName = element["State"].trim();
         let stateAbbr = element["State Abbreviation"];
         let startDateString = element["State Closure Start Date"];
         let startDateIndex = dates[startDateString];
