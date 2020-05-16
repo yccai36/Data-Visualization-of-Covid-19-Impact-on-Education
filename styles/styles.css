@@ -1,3 +1,7 @@
+/*  * Code References:
+    * 1. https://bl.ocks.org/d3noob/a22c42db65eb00d4e369
+*/
+
 /* ========== World Map Styles ========== */
 #world-map body {
   padding: 0;
@@ -104,25 +108,38 @@
 }
 
 /* ----------us map styles-------------- */
-/* #us-map-wrapper {
-    width: 960px;
-    margin: -30px auto 0;
-  } */
   
-  #us-map-clock #us-map-play{
-    position: absolute;
-    top: 20px;
-  }
+#us-map-clock #us-map-play{
+  position: absolute;
+  top: 20px;
+}
+
+#us-map-clock {
   
-  #us-map-clock {
-    
-    left: 65px;
-  }
+  left: 65px;
+}
+
+#us-map-play{
   
-  #us-map-play{
-    
-    left: 15px;
-  }
+  left: 15px;
+}
+
+div.tooltip {	
+  position: absolute;			
+  text-align: left;			
+  width: 60px;					
+  height: 26px;					
+  padding: 3px;				
+  font: 12px sans-serif;		
+  background: lightyellow;	
+  border: 0px;		
+  border-radius: 8px;			
+  pointer-events: none;			
+}
+
+#legend {
+  margin: auto;
+}
 
 /* ========== US Line Chart Styles ========== */
 #us-line .gridlines line {
