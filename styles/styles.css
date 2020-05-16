@@ -1,4 +1,4 @@
-/*world_map*/
+/* ========== World Map Styles ========== */
 #world-map body {
   padding: 0;
   margin: 0;
@@ -10,14 +10,13 @@
 
 #world-map .country {
   fill: white;
-  stroke: rgb(27, 26, 26);
+  stroke: rgb(108, 99, 99);
   stroke-width: 0.2px;
 }
 
-#world-map .country:hover {
-    fill-opacity: 0.4!important;
-    stroke-width: 0.5px!important;
-}
+/* #world-map .country:hover{
+	fill:blueviolet;
+} */
 
 #world-map path {
   fill: none;
@@ -34,11 +33,58 @@
   position: absolute;
   top: 15px;
 }
+
 #world-map-play {
   left: 15px;
 }
+
 #world-map-clock {
   left: 65px;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    background-color: #ffffff;
+    /* overflow: hidden; */
+}
+
+#world-map .Sphere {
+    fill: lightblue;
+}
+
+#world-map .country {
+    fill: white;
+    stroke: rgb(27, 26, 26);
+    stroke-width: 0.2px;
+}
+
+#world-map .country:hover {
+    fill-opacity: 0.4 !important;
+    stroke-width: 0.5px !important;
+}
+
+#world-map path {
+    fill: none;
+    stroke: #333;
+    stroke-width: 0.5px;
+}
+
+#world-map-wrapper {
+    width: 960px;
+    margin: -30px auto 0;
+}
+
+#world-map-play,
+#world-map-clock {
+    position: absolute;
+    top: 15px;
+}
+#world-map-play {
+    left: 15px;
+}
+#world-map-clock {
+    left: 65px;
 }
 
 /* ========== World Line Chart Styles ========== */
@@ -64,6 +110,52 @@
 
 #world-line path#open-line {
     stroke: green;
+    stroke-width: 1.5px;
+    fill: none;
+<<<<<<< HEAD
+}
+=======
+}
+
+<<<<<<< HEAD
+/* ----------us map styles-------------- */
+/* #us-map-wrapper {
+    width: 960px;
+    margin: -30px auto 0;
+  } */
+  
+  #us-map-clock #us-map-play{
+    position: absolute;
+    top: 20px;
+  }
+  
+  #us-map-clock {
+    
+    left: 65px;
+  }
+  
+  #us-map-play{
+    
+    left: 15px;
+  }
+=======
+/* ========== US Line Chart Styles ========== */
+#us-line .gridlines line {
+    stroke: #bbb;
+}
+
+#us-line .gridlines .domain {
+    stroke: none;
+}
+
+#us-line path#ordered-line {
+    stroke: red;
+    stroke-width: 1.5px;
+    fill: none;
+}
+
+#us-line path#recommended-line {
+    stroke: steelblue;
     stroke-width: 1.5px;
     fill: none;
 }
