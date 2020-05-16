@@ -64,9 +64,9 @@ const generateWorldLineChart = async () => {
         dataOriginal,
         dataISO
     );
-    console.log(dataNational);
-    console.log(dataLocalized);
-    console.log(dataOpen);
+    // console.log(dataNational);
+    // console.log(dataLocalized);
+    // console.log(dataOpen);
 
     const width = 900;
     const height = 500;
@@ -115,17 +115,17 @@ const generateWorldLineChart = async () => {
         )
         .call(yGridlines);
 
-    svg.append("g")
-        .attr("class", "x gridlines")
-        .attr(
-            "transform",
-            "translate(" +
-                padding.left +
-                ", " +
-                (padding.top + plotHeight) +
-                ")"
-        )
-        .call(xGridlines);
+    // svg.append("g")
+    //     .attr("class", "x gridlines")
+    //     .attr(
+    //         "transform",
+    //         "translate(" +
+    //             padding.left +
+    //             ", " +
+    //             (padding.top + plotHeight) +
+    //             ")"
+    //     )
+    //     .call(xGridlines);
 
     // Axises
     const yAxis = d3.axisLeft(countryScale);
@@ -135,7 +135,7 @@ const generateWorldLineChart = async () => {
         .tickFormat(d3.timeFormat("%m/%d"))
         .tickSize(0)
         .ticks(d3.timeWeek.every(2))
-        .tickPadding(7);
+        .tickPadding(10);
 
     // Draw Axises
     svg.append("g")
@@ -172,6 +172,11 @@ const generateWorldLineChart = async () => {
 
     const openPlot = plot.append("g").attr("class", "open");
 
+    let lineGenerator = d3
+        .line()
+        .x((d) => dateScale(d["date"]))
+        .y((d) => countryScale(d["count"]));
+
     // line - localized
     localizedPlot
         .append("path")
@@ -180,13 +185,7 @@ const generateWorldLineChart = async () => {
         .attr("fill", "none")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 2)
-        .attr(
-            "d",
-            d3
-                .line()
-                .x((d) => dateScale(d["date"]))
-                .y((d) => countryScale(d["count"]))
-        );
+        .attr("d", lineGenerator);
 
     // points - localized
     localizedPlot
@@ -209,13 +208,7 @@ const generateWorldLineChart = async () => {
         .attr("fill", "none")
         .attr("stroke", "red")
         .attr("stroke-width", 2)
-        .attr(
-            "d",
-            d3
-                .line()
-                .x((d) => dateScale(d["date"]))
-                .y((d) => countryScale(d["count"]))
-        );
+        .attr("d", lineGenerator);
 
     // points - national
     nationalPlot
