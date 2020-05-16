@@ -44,7 +44,7 @@ const generateWorldMap = async function () {
     const dataISO = await d3.json("../datasets/ISO.json");
     const AlphaToNum = processISOData(dataISO);
     let surveyData = processWorldData(dataOriginal, AlphaToNum);
-    // console.log("=-=-=-=-=-==-", surveyData[3][0]["dateString"]);
+    console.log("=-=-=-=-=-==-", surveyData);
 
     var i;
     for (i = 0; i < surveyData.length; i++) {
@@ -86,7 +86,7 @@ const generateWorldMap = async function () {
                     d3.select('#world-map-clock').html('date');
                 }
                
-            }, 20);
+            }, 200);
         }else {   
             clearInterval(timer);   
             d3.select(this).html('play');  
