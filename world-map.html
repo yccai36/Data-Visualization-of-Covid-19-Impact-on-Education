@@ -8,14 +8,18 @@
         <!-- D3 Libirary -->
         <script src="https://d3js.org/d3.v5.min.js"></script>
         <script src="https://unpkg.com/topojson@3.0.2/dist/topojson.min.js"></script>
+        <script src="https://unpkg.com/d3-simple-slider"></script>
     </head>
     <body>
-    	<div id="world-map-wrapper">	
+    	<div id="world-map-wrapper">
+            <div id="world-map"></div>	
             <button id="world-map-play">play</button>
             <span id="world-map-clock">date</span>
+            <div id="world-map-slider"></div>
+            <p id="world-map-slider-value"></p>
         </div>
+
         <!-- each plot shows on one svg -->
-        <svg id="world-map" width="960" height="500"></svg>
         <svg id="svg2"></svg>
         <svg id="svg3"></svg>
         <svg id="svg4"></svg>

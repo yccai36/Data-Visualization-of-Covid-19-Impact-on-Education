@@ -1,12 +1,12 @@
 // reference code
 // http://bl.ocks.org/rgdonohue/9280446
 // info3300's note for March 4(usmap)
-var dateArray = [], currentDateIdx = 0,playing = false;
-const generateWorldMap = async function () {
-    
-    d3.select('#world-map-clock').html(dateArray[currentDateIdx]); 
+
+const generateWorldMap = async function () {    
    
-    const svg = d3.select("#world-map");
+    const svg = d3.select("#world-map").append("svg")   // append a svg to our html div to hold our map
+      .attr("width", 960)
+      .attr("height", 500);
     const width = svg.attr("width");
     const height = svg.attr("height");
 
@@ -44,13 +44,8 @@ const generateWorldMap = async function () {
     const dataISO = await d3.json("../datasets/ISO.json");
     const AlphaToNum = processISOData(dataISO);
     let surveyData = processWorldData(dataOriginal, AlphaToNum);
-    console.log("=-=-=-=-=-==-", surveyData);
-
-    var i;
-    for (i = 0; i < surveyData.length; i++) {
-        dateArray.push(surveyData[i][0]["dateString"]);
-    }
-        
+    // console.log("=-=-=-=-=-==-", surveyData[surveyData.length-1][0]["date"]);
+    
     g.selectAll("path")
         .data(countries.features)
         .enter()
@@ -63,6 +58,16 @@ const generateWorldMap = async function () {
         .append('title')
             .text(d=>d.properties.NAME);
 
+    var countries_localized = [];
+    var countries_national = [];
+    var countries_reopen = [];
+    // for COVID spread trend animation
+    var dateArray = [], currentDateIdx = 0,playing = false;
+    var i;
+    for (i = 0; i < surveyData.length; i++) {
+        dateArray.push(surveyData[i][0]["dateString"]);
+    }
+    d3.select('#world-map-clock').html(dateArray[currentDateIdx]);        
     var timer;
     d3.select('#world-map-play') 
     .on('click', function(){
@@ -94,10 +99,107 @@ const generateWorldMap = async function () {
         }
     });
 
+    console.log("-=-=-=-",surveyData[0][0]["date"]);
+    //for COVID situation of a certain day using slider
+    //https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518
+    var width_slider = 960;
+    var height_slider = 200;
+    var margin_slider = { top: 20, right: 50, bottom: 50, left: 40 };
+
+    var sliderData = d3.range(1, surveyData.length).map(d => ({
+        dayIdx: d,
+        date: surveyData[d-1][0]["date"],//surveyData[0][0]['dateString']
+        value: 241// 241 countries and regions in the world    countries.features.length
+        // 【】combine with world_line_chart's data
+        // countries_localized: ?,
+        // countries_national:?,
+        // countries_reopen:? 
+    }));
+    console.log("-=-=",sliderData);
+
+    var svg_slider = d3
+      .select('div#world-map-slider')
+      .append('svg')
+      .attr('width', width_slider)
+      .attr('height', height_slider);
+
+    var padding = 0.1;
+    var xBand = d3
+        .scaleBand()
+        .domain(sliderData.map(d => d.dayIdx))
+        .range([margin_slider.left, width_slider - margin_slider.right])
+        .padding(padding);
+
+    var xLinear = d3
+        .scaleLinear()
+        .domain([
+            d3.min(sliderData, d => d.date),
+            d3.max(sliderData, d => d.date),
+        ])
+        .range([
+        margin.left + xBand.bandwidth() / 2 + xBand.step() * padding - 0.5,
+        width - margin.right - xBand.bandwidth() / 2 - xBand.step() * padding - 0.5,
+        ]);
+
+    var y = d3
+        .scaleLinear()
+        .domain([0, d3.max(sliderData, d => d.value)])
+        .nice()
+        .range([height_slider - margin_slider.bottom, margin_slider.top]);
+ 
+    var slider = g =>
+        g.attr('transform', `translate(0,${height_slider - margin_slider.bottom})`).call(
+          d3.sliderBottom(xLinear)
+            .step(60 * 60 * 24)
+            .tickFormat(d3.timeFormat('%m/%d'))
+            .ticks(10)
+            .on('onchange', value => draw(value))
+        );
+    
+    var bars = svg_slider
+        .append('g')
+        .selectAll('rect')
+        .data(sliderData);
+    
+    var barsEnter = bars
+        .enter()
+        .append('rect')
+        .attr('x', d => xBand(d.dayIdx))
+        .attr('y', d => y(d.value))
+        .attr('height', d => y(0) - y(d.value))
+        .attr('width', xBand.bandwidth());
+    
+    svg_slider.append('g').call(slider);
+    
+    var draw = selected => {
+        var formatTime = d3.timeFormat("%m/%d"); 
+        var curDate =  formatTime(selected);  
+        barsEnter
+          .merge(bars)
+          .attr('fill', d => (formatTime(d.date) === curDate ? '#bad80a' : '#e0e0e0'));
+        var startDate = surveyData[0][0]['date'];
+        var idx = d3.timeDay.count(startDate,new Date(curDate)) + 6939;//【】
+        currentDateIdx = idx;
+        d3.select('#world-map-clock').html(dateArray[currentDateIdx]);  
+        sequenceMap(idx);
+        console.log("-=-=-=",idx);
+        d3.select('p#world-map-slider-value').text(
+          d3.format(",.2r")(sliderData[0].value) + " affected countries"
+        );
+        
+    };
+    
+    draw(10);
+
+
+
+
+    
+    ////////////////
     function sequenceMap(day) {
-        var countries_localized = [];
-        var countries_national = [];
-        var countries_reopen = [];
+        countries_localized = [];
+        countries_national = [];
+        countries_reopen = [];
         surveyData[day].forEach((row) => {
             if (row.scale == "Localized") {
                 countries_localized.push(row.alphaISO);
@@ -108,7 +210,12 @@ const generateWorldMap = async function () {
             }
     
         }); 
-    
+
+        g.selectAll("path")
+            .style("fill", 'white');
+        g.select(".Sphere")
+            .style("fill", 'lightblue');
+
         countries_localized.forEach((id) => {
             g.select('path#'+id)
                 .style("fill", 'orange' )
@@ -133,3 +240,4 @@ const generateWorldMap = async function () {
 };
 
 window.onload = generateWorldMap();
+
