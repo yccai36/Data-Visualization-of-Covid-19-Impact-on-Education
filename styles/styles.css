@@ -33,15 +33,19 @@
   position: absolute;
   top: 15px;
 }
+
 #world-map-play {
   left: 15px;
 }
+
 #world-map-clock {
   left: 65px;
 }
+
 body {
     padding: 0;
     margin: 0;
+    background-color: #ffffff;
     /* overflow: hidden; */
 }
 
@@ -116,3 +120,24 @@ path {
     stroke-width: 1.5px;
     fill: none;
 }
+
+/* ----------us map styles-------------- */
+/* #us-map-wrapper {
+    width: 960px;
+    margin: -30px auto 0;
+  } */
+  
+  #us-map-clock #us-map-play{
+    position: absolute;
+    top: 20px;
+  }
+  
+  #us-map-clock {
+    
+    left: 65px;
+  }
+  
+  #us-map-play{
+    
+    left: 15px;
+  }
