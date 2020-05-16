@@ -14,10 +14,6 @@
   stroke-width: 0.2px;
 }
 
-/* #world-map .country:hover{
-	fill:blueviolet;
-} */
-
 #world-map path {
   fill: none;
   stroke: #333;
@@ -40,13 +36,6 @@
 
 #world-map-clock {
   left: 65px;
-}
-
-body {
-    padding: 0;
-    margin: 0;
-    background-color: #ffffff;
-    /* overflow: hidden; */
 }
 
 #world-map .Sphere {
@@ -112,12 +101,8 @@ body {
     stroke: green;
     stroke-width: 1.5px;
     fill: none;
-<<<<<<< HEAD
-}
-=======
 }
 
-<<<<<<< HEAD
 /* ----------us map styles-------------- */
 /* #us-map-wrapper {
     width: 960px;
@@ -138,7 +123,7 @@ body {
     
     left: 15px;
   }
-=======
+
 /* ========== US Line Chart Styles ========== */
 #us-line .gridlines line {
     stroke: #bbb;
