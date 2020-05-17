@@ -12,6 +12,7 @@ const processDataWorldLine = (dataOriginal, dataISO) => {
     data.forEach((element) => {
         let date = element[0]["date"];
         let dateString = element[0]["dateString"];
+        let dateIndex = element[0]["dateIndex"];
         let countNational = 0;
         let countLocalized = 0;
         let countOpen = 0;
@@ -29,6 +30,7 @@ const processDataWorldLine = (dataOriginal, dataISO) => {
         let dataOneDayNational = {
             date: date,
             dateString: dateString,
+            dateIndex: dateIndex,
             scale: "national",
             count: countNational,
         };
@@ -36,6 +38,7 @@ const processDataWorldLine = (dataOriginal, dataISO) => {
         let dataOneDayLocalized = {
             date: date,
             dateString: dateString,
+            dateIndex: dateIndex,
             scale: "localized",
             count: countLocalized,
         };
@@ -43,6 +46,7 @@ const processDataWorldLine = (dataOriginal, dataISO) => {
         let dataOneDayOpen = {
             date: date,
             dateString: dateString,
+            dateIndex: dateIndex,
             scale: "open",
             count: countOpen,
         };
@@ -191,12 +195,14 @@ const generateWorldLineChart = async () => {
         .attr("stroke-width", 2)
         .attr("d", lineGenerator);
 
+    console.log(dataLocalized);
     // points - localized
     localizedPlot
         .selectAll("circle.point")
         .data(dataLocalized)
         .join("circle")
         .attr("class", "point localized-point")
+        .attr("id", (d) => "localized" + d["dateIndex"])
         .attr("r", 2)
         .attr("cx", (d) => dateScale(d["date"]))
         .attr("cy", (d) => countryScale(d["count"]))
@@ -220,6 +226,7 @@ const generateWorldLineChart = async () => {
         .data(dataNational)
         .join("circle")
         .attr("class", "point national-point")
+        .attr("id", (d) => "national" + d["dateIndex"])
         .attr("r", 2)
         .attr("cx", (d) => dateScale(d["date"]))
         .attr("cy", (d) => countryScale(d["count"]))
@@ -345,6 +352,29 @@ const generateWorldLineChart = async () => {
             tooltip.style("left", "auto").style("right", tooltipRight + "px");
         }
         tooltip.html(tooltipContent);
+
+        // emphasize points
+        d3.selectAll("circle.national-point")
+            .attr("r", 2)
+            .attr("fill", "white")
+            .attr("stroke", "red")
+            .attr("stroke-width", 1);
+        d3.selectAll("circle.localized-point")
+            .attr("r", 2)
+            .attr("fill", "white")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 1);
+
+        d3.select("circle#national" + newIndex)
+            .attr("r", 4.5)
+            .attr("fill", "red")
+            .attr("stroke", "white")
+            .attr("stroke-width", 2);
+        d3.select("circle#localized" + newIndex)
+            .attr("r", 4.5)
+            .attr("fill", "steelblue")
+            .attr("stroke", "white")
+            .attr("stroke-width", 2);
     });
 
     // ==== User Interactive End === //
