@@ -108,6 +108,18 @@
     fill: none;
 }
 
+#world-line-div {
+    position: relative;
+}
+
+#world-line-div .line-tooltip {
+    background-color: white;
+    border: 1px black solid;
+    border-radius: 5px;
+    padding: 0 10px;
+    position: absolute;
+}
+
 /* ----------us map styles-------------- */
 
 #us-map-clock #us-map-play {
