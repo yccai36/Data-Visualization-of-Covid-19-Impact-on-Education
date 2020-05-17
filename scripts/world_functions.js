@@ -84,3 +84,63 @@ const processWorldMapTooltips = (data) => {
 
     return tooltipData;
 };
+
+// process orginal data, return arraies for 3 group to draw the world line chart
+const processDataWorldLine = (dataOriginal, dataISO) => {
+    const alphaToNum = processISOData(dataISO);
+    const data = processWorldData(dataOriginal, alphaToNum);
+
+    // init data
+    let dataNational = [];
+    let dataLocalized = [];
+    let dataOpen = [];
+
+    data.forEach((element) => {
+        let date = element[0]["date"];
+        let dateString = element[0]["dateString"];
+        let dateIndex = element[0]["dateIndex"];
+        let countNational = 0;
+        let countLocalized = 0;
+        let countOpen = 0;
+
+        element.forEach((item) => {
+            if (item["scale"] === "National") {
+                countNational++;
+            } else if (item["scale"] === "Localized") {
+                countLocalized++;
+            } else if (item["scale"] === "Open") {
+                countOpen++;
+            }
+        });
+
+        let dataOneDayNational = {
+            date: date,
+            dateString: dateString,
+            dateIndex: dateIndex,
+            scale: "national",
+            count: countNational,
+        };
+
+        let dataOneDayLocalized = {
+            date: date,
+            dateString: dateString,
+            dateIndex: dateIndex,
+            scale: "localized",
+            count: countLocalized,
+        };
+
+        let dataOneDayOpen = {
+            date: date,
+            dateString: dateString,
+            dateIndex: dateIndex,
+            scale: "open",
+            count: countOpen,
+        };
+
+        dataNational.push(dataOneDayNational);
+        dataLocalized.push(dataOneDayLocalized);
+        dataOpen.push(dataOneDayOpen);
+    });
+
+    return [dataNational, dataLocalized, dataOpen];
+};
