@@ -67,8 +67,8 @@ const generateWorldLineChart = async () => {
         dataOriginal,
         dataISO
     );
-    const colorNational = "green";
-    const colorLocalized = "blue";
+    const colorNational = "red";
+    const colorLocalized = "steelblue";
     const colorOpen = "yellow";
 
     const width = 900;

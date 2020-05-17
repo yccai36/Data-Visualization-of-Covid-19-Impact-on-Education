@@ -50,8 +50,8 @@ const generateUSLineChart = async () => {
     );
     let [dataOrdered, dataRecommended] = processDataUSLine(dataOriginal);
 
-    const colorOrdered = "green";
-    const colorRecommended = "blue";
+    const colorOrdered = "red";
+    const colorRecommended = "steelblue";
 
     const width = 900;
     const height = 500;
