@@ -11,10 +11,10 @@ const generateWorldLineChart = async () => {
     const colorLocalized = "steelblue";
     const colorOpen = "yellow";
 
-    const width = 900;
+    const width = window.innerWidth * 0.45;
     const height = 500;
-    const div = d3
-        .select("#world-line-div")
+    const container = d3
+        .select("#world-line-container")
         .style("width", width + "px")
         .style("height", height + "px");
     const svg = d3
@@ -124,6 +124,24 @@ const generateWorldLineChart = async () => {
         .attr("y1", 0)
         .attr("y2", plotHeight);
 
+    const markerGroupFixed = svg
+        .append("g")
+        .attr("id", "marker-fixed-group")
+        .attr(
+            "transform",
+            "translate(" + padding.left + ", " + padding.top + ")"
+        )
+        .style("visibility", "hidden");
+
+    const markerLineFixed = markerGroupFixed
+        .append("line")
+        .attr("id", "marker-line")
+        .attr("fill", "none")
+        .attr("stroke", "#aaa")
+        .attr("stroke-width", "1")
+        .attr("y1", 0)
+        .attr("y2", plotHeight);
+
     // Plot group
     const plot = svg
         .append("g")
@@ -161,7 +179,7 @@ const generateWorldLineChart = async () => {
         .selectAll("circle.point")
         .data(dataLocalized)
         .join("circle")
-        .attr("class", "point localized-point")
+        .attr("class", "point localized-point normal")
         .attr("id", (d) => "localized" + d["dateIndex"])
         .attr("r", pointRadius)
         .attr("cx", (d) => dateScale(d["date"]))
@@ -185,7 +203,7 @@ const generateWorldLineChart = async () => {
         .selectAll("circle.point")
         .data(dataNational)
         .join("circle")
-        .attr("class", "point national-point")
+        .attr("class", "point national-point normal")
         .attr("id", (d) => "national" + d["dateIndex"])
         .attr("r", pointRadius)
         .attr("cx", (d) => dateScale(d["date"]))
@@ -230,7 +248,7 @@ const generateWorldLineChart = async () => {
         .attr("pointer-events", "all");
 
     const tooltip = d3
-        .select("#world-line-div")
+        .select("#world-line-container")
         .append("div")
         .attr("class", "line-tooltip")
         .style("visibility", "hidden");
@@ -261,6 +279,7 @@ const generateWorldLineChart = async () => {
 
     activeRect.on("mouseout", function () {
         markerGroup.style("visibility", "hidden");
+        markerGroupFixed.style("visibility", "hidden");
         activeGroup.style("visibility", "hidden");
 
         tooltip.style("visibility", "hidden");
@@ -269,12 +288,14 @@ const generateWorldLineChart = async () => {
             .attr("r", 2)
             .attr("fill", "white")
             .attr("stroke", colorNational)
-            .attr("stroke-width", 1);
+            .attr("stroke-width", 1)
+            .classed("normal", true);
         d3.selectAll("circle.localized-point")
             .attr("r", 2)
             .attr("fill", "white")
             .attr("stroke", colorLocalized)
-            .attr("stroke-width", 1);
+            .attr("stroke-width", 1)
+            .classed("normal", true);
     });
 
     activeRect.on("mousemove", function () {
@@ -319,12 +340,12 @@ const generateWorldLineChart = async () => {
         tooltip.html(tooltipContent);
 
         // emphasize points
-        d3.selectAll("circle.national-point")
+        d3.selectAll("circle.national-point.normal")
             .attr("r", pointRadius)
             .attr("fill", "white")
             .attr("stroke", colorNational)
             .attr("stroke-width", 1);
-        d3.selectAll("circle.localized-point")
+        d3.selectAll("circle.localized-point.normal")
             .attr("r", pointRadius)
             .attr("fill", "white")
             .attr("stroke", colorLocalized)
@@ -340,6 +361,48 @@ const generateWorldLineChart = async () => {
             .attr("fill", colorLocalized)
             .attr("stroke", "white")
             .attr("stroke-width", 2);
+    });
+
+    activeRect.on("click", function () {
+        markerGroupFixed.style("visibility", "visible");
+
+        // marker line
+        // get mouse position
+        let [mouseX, mouseY] = d3.mouse(this);
+        // get mouse corresponding date
+        let mouseDate = dateScale.invert(mouseX);
+        // find the closest date
+        let [newIndex, newDate] = findDate(dataLocalized, mouseDate);
+        let markerX = dateScale(newDate);
+        markerLineFixed.attr("x1", markerX).attr("x2", markerX);
+        console.log(markerX);
+
+        // emphasize points
+        d3.selectAll("circle.national-point")
+            .attr("r", pointRadius)
+            .attr("fill", "white")
+            .attr("stroke", colorNational)
+            .attr("stroke-width", 1)
+            .classed("normal", true);
+        d3.selectAll("circle.localized-point")
+            .attr("r", pointRadius)
+            .attr("fill", "white")
+            .attr("stroke", colorLocalized)
+            .attr("stroke-width", 1)
+            .classed("normal", true);
+
+        d3.select("circle#national" + newIndex)
+            .attr("r", pointRadius + 2.5)
+            .attr("fill", colorNational)
+            .attr("stroke", "white")
+            .attr("stroke-width", 2)
+            .classed("normal", false);
+        d3.select("circle#localized" + newIndex)
+            .attr("r", pointRadius + 2.5)
+            .attr("fill", colorLocalized)
+            .attr("stroke", "white")
+            .attr("stroke-width", 2)
+            .classed("normal", false);
     });
 
     // ==== User Interactive End === //

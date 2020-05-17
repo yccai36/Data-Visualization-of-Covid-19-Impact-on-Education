@@ -144,3 +144,50 @@ const processDataWorldLine = (dataOriginal, dataISO) => {
 
     return [dataNational, dataLocalized, dataOpen];
 };
+
+const updateMap = (surveyData, map, day, colors) => {
+    let countries_localized = [];
+    let countries_national = [];
+    let countries_reopen = [];
+    let [
+        color_healthy,
+        color_sea,
+        color_localized,
+        color_national,
+        color_reopen,
+    ] = colors;
+
+    surveyData[day].forEach((row) => {
+        if (row.scale == "Localized") {
+            countries_localized.push(row.alphaISO);
+        } else if (row.scale == "National") {
+            countries_national.push(row.alphaISO);
+        } else if (row.scale == "Open") {
+            countries_reopen.push(row.alphaISO);
+        }
+    });
+
+    map.selectAll("path").style("fill", color_healthy);
+    map.select(".Sphere").style("fill", color_sea);
+
+    countries_localized.forEach((id) => {
+        map.select("path#" + id)
+            .style("fill", color_localized)
+            .append("title")
+            .text("localized");
+    });
+
+    countries_national.forEach((id) => {
+        map.select("path#" + id)
+            .style("fill", color_national)
+            .append("title")
+            .text("national");
+    });
+
+    countries_reopen.forEach((id) => {
+        map.select("path#" + id)
+            .style("fill", color_reopen)
+            .append("title")
+            .text("reopen!");
+    });
+};

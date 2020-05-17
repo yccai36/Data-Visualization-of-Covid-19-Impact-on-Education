@@ -3,44 +3,14 @@
 */
 
 /* ========== World Map Styles ========== */
-#world-map body {
-    padding: 0;
-    margin: 0;
+
+#world-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
 }
 
-#world-map .Sphere {
-    fill: lightblue;
-}
-
-#world-map .country {
-    fill: white;
-    stroke: rgb(108, 99, 99);
-    stroke-width: 0.2px;
-}
-
-#world-map path {
-    fill: none;
-    stroke: #333;
-    stroke-width: 0.5px;
-}
-
-#world-map-wrapper {
-    width: 960px;
-    margin: -30px auto 0;
-}
-
-#world-map-play,
-#world-map-clock {
-    position: absolute;
-    top: 15px;
-}
-
-#world-map-play {
-    left: 15px;
-}
-
-#world-map-clock {
-    left: 65px;
+#world-map-container {
+    position: relative;
 }
 
 #world-map .Sphere {
@@ -69,27 +39,19 @@
     margin: -30px auto 0;
 }
 
-#world-map-play,
-#world-map-clock {
-    position: absolute;
-    top: 15px;
-}
-#world-map-play {
-    left: 15px;
-}
 #world-map-clock {
     left: 65px;
 }
 
-#world-map div.tooltip { 
-    position: absolute;     
-    text-align: center;     
-    width: 180px;          
-    padding: 0px;       
-    font: 12px sans-serif;    
-    background: rgb(247, 218, 92); 
-    border: 0px;        
-    pointer-events: none;     
+#world-map div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 180px;
+    padding: 0px;
+    font: 12px sans-serif;
+    background: rgb(247, 218, 92);
+    border: 0px;
+    pointer-events: none;
 }
 /* ========== World Line Chart Styles ========== */
 #world-line .gridlines line {
@@ -100,11 +62,11 @@
     stroke: none;
 }
 
-#world-line-div {
+#world-line-container {
     position: relative;
 }
 
-#world-line-div .line-tooltip {
+#world-line-container .line-tooltip {
     background-color: white;
     border: 1px black solid;
     border-radius: 5px;
@@ -153,11 +115,11 @@ div.tooltip {
     stroke: none;
 }
 
-#us-line-div {
+#us-line-container {
     position: relative;
 }
 
-#us-line-div .line-tooltip {
+#us-line-container .line-tooltip {
     background-color: white;
     border: 1px black solid;
     border-radius: 5px;

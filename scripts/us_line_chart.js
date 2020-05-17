@@ -56,7 +56,7 @@ const generateUSLineChart = async () => {
     const width = 900;
     const height = 500;
     const div = d3
-        .select("#us-line-div")
+        .select("#us-line-container")
         .style("width", width + "px")
         .style("height", height + "px");
     const svg = d3
@@ -236,7 +236,7 @@ const generateUSLineChart = async () => {
         .attr("pointer-events", "all");
 
     const tooltip = d3
-        .select("#us-line-div")
+        .select("#us-line-container")
         .append("div")
         .attr("class", "line-tooltip")
         .style("visibility", "hidden");

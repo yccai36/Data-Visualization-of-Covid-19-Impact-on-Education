@@ -3,20 +3,35 @@
 // info3300's note for March 4(usmap)
 
 const generateWorldMap = async function () {
-    var color_sea = "lightblue";
-    var color_healthy = "white";
-    var color_localized = "orange";
-    var color_national = "red";
-    var color_reopen = "lightgreen";
+    let color_sea = "lightblue";
+    let color_healthy = "white";
+    let color_localized = "orange";
+    let color_national = "red";
+    let color_reopen = "lightgreen";
+
+    let colors = [
+        color_healthy,
+        color_sea,
+        color_localized,
+        color_national,
+        color_reopen,
+    ];
+
+    const width = window.innerWidth * 0.45;
+    const height = 500;
+
+    const container = d3
+        .select("#world-map-container")
+        .style("width", width + "px")
+        .style("height", height + "px");
+
     const svg = d3
         .select("#world-map")
-        .append("svg") // append a svg to our html div to hold our map
-        .attr("width", 960)
-        .attr("height", 500);
-    const width = svg.attr("width");
-    const height = svg.attr("height");
+        .attr("width", width)
+        .attr("height", height);
+
     //tooltip reference: https://bl.ocks.org/tiffylou/88f58da4599c9b95232f5c89a6321992
-    var tooltip = d3
+    let tooltip = d3
         .select("#world-map")
         .append("div")
         .attr("class", "tooltip")
@@ -29,30 +44,28 @@ const generateWorldMap = async function () {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     const world = await d3.json("../datasets/world.json"); // https://raw.githubusercontent.com/plotly/plotly.js/master/dist/topojson/world_50m.json
-    console.log("world", world);
 
-    const projection = d3.geoNaturalEarth1();
+    const countries = topojson.feature(
+        world,
+        world.objects.ne_50m_admin_0_countries
+    );
+
+    const projection = d3
+        .geoNaturalEarth1()
+        .fitSize([mapWidth, mapHeight], countries);
     const pathGenerator = d3.geoPath().projection(projection);
 
-    const g = svg.append("g");
-
     //sphere,map edge
-    g.append("path")
+    map.append("path")
         .attr("d", pathGenerator({ type: "Sphere" }))
         .attr("class", "Sphere");
 
     //zoom
     svg.call(
         d3.zoom().on("zoom", () => {
-            g.attr("transform", d3.event.transform);
+            map.attr("transform", d3.event.transform);
         })
     );
-
-    const countries = topojson.feature(
-        world,
-        world.objects.ne_50m_admin_0_countries
-    );
-    console.log("countries", countries);
 
     const dataOriginal = await d3.csv("../datasets/covid_impact_education.csv");
     const dataISO = await d3.json("../datasets/ISO.json");
@@ -63,30 +76,27 @@ const generateWorldMap = async function () {
     const AlphaToNum = processISOData(dataISO);
     let surveyData = processWorldData(dataOriginal, AlphaToNum);
     const tooltipData = processWorldMapTooltips(surveyData);
-    console.log("=-=-=-tooltipData=-=-==-", tooltipData);
-    console.log("=-=-=-surveyData=-=-==-", surveyData);
 
-    g.selectAll("path")
+    map.selectAll("path")
         .data(countries.features)
         .enter()
         .append("path")
         .attr("d", pathGenerator)
         .attr("class", "country")
         .attr("id", (d) => {
-            //
             return d.properties.ISO_A3;
         })
         .on("mouseover", function (d) {
             tooltip.transition().duration(200).style("opacity", 0.9);
             tooltip
                 .html(function () {
-                    var tmp = `<p>${d.properties.NAME}</p>`;
+                    let tmp = `<p>${d.properties.NAME}</p>`;
                     if (tooltipData[d.properties.ISO_A3] == undefined) {
                         tmp = tmp + `<p>No record</p>`;
                         return tmp;
                     } else {
                         tooltipData[d.properties.ISO_A3].forEach((row) => {
-                            var tmp2 = `<p> ${
+                            let tmp2 = `<p> ${
                                 row["startDateString"] + ": " + row["scale"]
                             }</p>`;
                             tmp = tmp + tmp2;
@@ -95,13 +105,13 @@ const generateWorldMap = async function () {
                     }
                 })
                 .style("height", function () {
-                    var tmp;
+                    let tmp;
                     if (tooltipData[d.properties.ISO_A3] == undefined) {
                         tmp = 1;
                     } else {
                         tmp = tooltipData[d.properties.ISO_A3].length;
                     }
-                    var rectHeight = tmp * 60;
+                    let rectHeight = tmp * 60;
                     return rectHeight + "px";
                 })
                 .style("left", function () {
@@ -117,56 +127,58 @@ const generateWorldMap = async function () {
             tooltip.transition().duration(500).style("opacity", 0);
         });
 
-    var countries_localized = [];
-    var countries_national = [];
-    var countries_reopen = [];
+    let countries_localized = [];
+    let countries_national = [];
+    let countries_reopen = [];
     // for COVID spread trend animation
-    var dateArray = [],
-        currentDateIdx = 0,
+    let dateArray = [],
+        currentDateIndex = 0,
         playing = false;
-    var i;
-    for (i = 0; i < surveyData.length; i++) {
-        dateArray.push(surveyData[i][0]["dateString"]);
+    for (let i = 0; i < surveyData.length; i++) {
+        dateArray.push(
+            surveyData[i][0]["date"].toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+            })
+        );
     }
-    d3.select("#world-map-clock").html(dateArray[currentDateIdx]);
-    var timer;
+    let animation;
     d3.select("#world-map-play").on("click", function () {
         if (playing == false) {
-            d3.select(this).html("stop");
-            timer = setInterval(function () {
-                if (currentDateIdx < dateArray.length - 1) {
-                    currentDateIdx += 1;
-                    sequenceMap(currentDateIdx);
-                    // draw(currentDateIdx);
+            playing = true;
+            d3.select(this).html("Pause");
+            animation = setInterval(function () {
+                if (currentDateIndex <= dateArray.length - 1) {
+                    // update map to current date
+                    updateMap(surveyData, map, currentDateIndex, colors);
                     d3.select("#world-map-clock").html(
-                        dateArray[currentDateIdx]
+                        dateArray[currentDateIndex]
                     );
-                    playing = true;
+                    currentDateIndex++;
                 } else {
-                    d3.select("#world-map-play").html("play");
-                    currentDateIdx = 0;
-                    // draw(currentDateIdx);
-                    clearInterval(timer);
+                    // animation completes
+                    clearInterval(animation);
+                    d3.select("#world-map-play").html("Restart");
+                    currentDateIndex = 0;
                     playing = false;
-                    g.selectAll("path").style("fill", color_healthy);
-                    g.select(".Sphere").style("fill", color_sea);
-                    d3.select("#world-map-clock").html("date");
                 }
             }, 200);
         } else {
-            clearInterval(timer);
-            d3.select(this).html("play");
+            // pause
+            clearInterval(animation);
             playing = false;
+            d3.select(this).html("Resume");
         }
     });
 
     //for COVID situation of a certain day using slider
     //https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518
-    var width_slider = 960;
-    var height_slider = 120;
-    var margin_slider = { top: 20, right: 50, bottom: 50, left: 40 };
+    let width_slider = width;
+    let height_slider = 100;
+    let margin_slider = { top: 20, right: 50, bottom: 50, left: 40 };
 
-    var sliderData = d3.range(0, surveyData.length).map((d) => ({
+    let sliderData = d3.range(0, surveyData.length).map((d) => ({
         dayIdx: d + 1,
         date: surveyData[d][0]["date"], //surveyData[0][0]['dateString']
         value: 241,
@@ -174,25 +186,20 @@ const generateWorldMap = async function () {
         countries_national: dataNational[d]["count"],
         countries_reopen: dataOpen[d]["count"],
     }));
-    console.log("-=-=sliderData-=-=", sliderData);
 
-    var svg_slider = d3
+    let svg_slider = d3
         .select("div#world-map-slider")
         .append("svg")
         .attr("width", width_slider)
         .attr("height", height_slider);
 
-    var padding = 0.1;
-    var xBand = d3
+    let padding = 0.1;
+    let xBand = d3
         .scaleBand()
         .domain(sliderData.map((d) => d.dayIdx))
         .range([margin_slider.left, width_slider - margin_slider.right])
         .padding(padding);
-    console.log(
-        "-=-=-!!=",
-        d3.max(sliderData, (d) => d.date)
-    );
-    var xLinear = d3
+    let xLinear = d3
         .scaleLinear()
         .domain([
             d3.min(sliderData, (d) => d.date),
@@ -206,17 +213,17 @@ const generateWorldMap = async function () {
                 xBand.step() * padding -
                 0.5,
         ]);
-    var y = d3
+    let y = d3
         .scaleLinear()
         .domain([0, d3.max(sliderData, (d) => d.value)])
         .nice()
         .range([height_slider - margin_slider.bottom, margin_slider.top]);
 
-    var bars1 = svg_slider.append("g").selectAll("rect").data(sliderData);
-    var bars2 = svg_slider.append("g").selectAll("rect").data(sliderData);
-    var bars3 = svg_slider.append("g").selectAll("rect").data(sliderData);
-    var bars4 = svg_slider.append("g").selectAll("rect").data(sliderData);
-    var barsEnter1 = bars1
+    let bars1 = svg_slider.append("g").selectAll("rect").data(sliderData);
+    let bars2 = svg_slider.append("g").selectAll("rect").data(sliderData);
+    let bars3 = svg_slider.append("g").selectAll("rect").data(sliderData);
+    let bars4 = svg_slider.append("g").selectAll("rect").data(sliderData);
+    let barsEnter1 = bars1
         .enter()
         .append("rect")
         .attr("x", (d) => xBand(d.dayIdx))
@@ -225,7 +232,7 @@ const generateWorldMap = async function () {
         .attr("fill", "gray")
         .attr("fill-opacity", "0.2")
         .attr("width", xBand.bandwidth());
-    var barsEnter2 = bars2
+    let barsEnter2 = bars2
         .enter()
         .append("rect")
         .attr("x", (d) => xBand(d.dayIdx))
@@ -234,7 +241,7 @@ const generateWorldMap = async function () {
         .attr("fill", "orange")
         .attr("fill-opacity", "0.2")
         .attr("width", xBand.bandwidth());
-    var barsEnter3 = bars3
+    let barsEnter3 = bars3
         .enter()
         .append("rect")
         .attr("x", (d) => xBand(d.dayIdx))
@@ -243,7 +250,7 @@ const generateWorldMap = async function () {
         .attr("fill", "red")
         .attr("fill-opacity", "0.2")
         .attr("width", xBand.bandwidth());
-    var barsEnter4 = bars4
+    let barsEnter4 = bars4
         .enter()
         .append("rect")
         .attr("x", (d) => xBand(d.dayIdx))
@@ -255,7 +262,7 @@ const generateWorldMap = async function () {
         .attr("fill-opacity", "0.2")
         .attr("width", xBand.bandwidth());
 
-    var slider = (g) =>
+    let slider = (g) =>
         g
             .attr(
                 "transform",
@@ -272,9 +279,9 @@ const generateWorldMap = async function () {
 
     svg_slider.append("g").call(slider);
 
-    var draw = (selected) => {
-        var formatTime = d3.timeFormat("%m/%d");
-        var curDate = formatTime(selected);
+    let draw = (selected) => {
+        let formatTime = d3.timeFormat("%m/%d");
+        let curDate = formatTime(selected);
         barsEnter1
             .merge(bars1)
             .attr("fill-opacity", (d) =>
@@ -295,15 +302,15 @@ const generateWorldMap = async function () {
             .attr("fill-opacity", (d) =>
                 formatTime(d.date) === curDate ? "0.8" : "0.2"
             );
-        var startDate = surveyData[0][0]["date"];
-        var dateParse = d3.timeParse("%m/%d");
-        var date_ = dateParse(curDate);
+        let startDate = surveyData[0][0]["date"];
+        let dateParse = d3.timeParse("%m/%d");
+        let date_ = dateParse(curDate);
         date_.setFullYear(2020);
-        var idx = d3.timeDay.count(startDate, date_);
+        let idx = d3.timeDay.count(startDate, date_);
 
-        currentDateIdx = idx;
-        d3.select("#world-map-clock").html(dateArray[currentDateIdx]);
-        sequenceMap(idx);
+        currentDateIndex = idx;
+        d3.select("#world-map-clock").html(dateArray[currentDateIndex]);
+        updateMap(surveyData, map, currentDateIndex, colors);
         d3.select("p#world-map-slider-value1")
             .text(
                 d3.format("d")(sliderData[idx].countries_localized) +
@@ -324,46 +331,7 @@ const generateWorldMap = async function () {
             .style("color", color_reopen);
     };
 
-    draw(surveyData[0][0]["date"]);
-
-    function sequenceMap(day) {
-        countries_localized = [];
-        countries_national = [];
-        countries_reopen = [];
-        surveyData[day].forEach((row) => {
-            if (row.scale == "Localized") {
-                countries_localized.push(row.alphaISO);
-            } else if (row.scale == "National") {
-                countries_national.push(row.alphaISO);
-            } else if (row.scale == "Open") {
-                countries_reopen.push(row.alphaISO);
-            }
-        });
-
-        g.selectAll("path").style("fill", color_healthy);
-        g.select(".Sphere").style("fill", color_sea);
-
-        countries_localized.forEach((id) => {
-            g.select("path#" + id)
-                .style("fill", color_localized)
-                .append("title")
-                .text("localized");
-        });
-
-        countries_national.forEach((id) => {
-            g.select("path#" + id)
-                .style("fill", color_national)
-                .append("title")
-                .text("national");
-        });
-
-        countries_reopen.forEach((id) => {
-            g.select("path#" + id)
-                .style("fill", color_reopen)
-                .append("title")
-                .text("reopen!"); //d=>d.properties.name
-        });
-    }
+    // draw(surveyData[0][0]["date"]);
 };
 
 window.onload = generateWorldMap();
