@@ -85,8 +85,7 @@
     position: absolute;     
     text-align: center;     
     width: 180px;          
-    height: 150px;         
-    padding: 2px;       
+    padding: 0px;       
     font: 12px sans-serif;    
     background: rgb(247, 218, 92); 
     border: 0px;        

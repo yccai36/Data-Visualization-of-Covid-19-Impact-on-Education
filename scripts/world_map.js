@@ -55,7 +55,9 @@ const generateWorldMap = async function () {
     );
     const AlphaToNum = processISOData(dataISO);
     let surveyData = processWorldData(dataOriginal, AlphaToNum);
-    // console.log("=-=-=-=-=-==-", surveyData[surveyData.length-1][0]["date"]);
+    const tooltipData = processWorldMapTooltips(surveyData);
+    console.log("=-=-=-tooltipData=-=-==-", tooltipData);
+    console.log("=-=-=-surveyData=-=-==-", surveyData);
 
     g.selectAll("path")
         .data(countries.features)
@@ -70,7 +72,30 @@ const generateWorldMap = async function () {
             tooltip.transition()    
             .duration(200)    
             .style("opacity", .9);    
-            tooltip.html(`<p>${d.properties.NAME}</p><p>blabla:</p><p> ${d.properties.NAME}</p><p>blabla:</p><p> ${d.properties.NAME}</p>` ) 
+            tooltip.html(function(){
+                var tmp = `<p>${d.properties.NAME}</p>`;
+                if (tooltipData[d.properties.ISO_A3] == undefined){
+                    tmp = tmp + `<p>No record</p>`;
+                    return tmp;
+                }else{
+                    tooltipData[d.properties.ISO_A3].forEach((row) => {
+                        var tmp2 = `<p> ${row["startDateString"] + ": " + row["scale"]}</p>`
+                        tmp = tmp + tmp2;
+                    });
+                    return tmp;
+                }
+                
+            }) 
+            .style("height", function(){
+                    var tmp;
+                    if(tooltipData[d.properties.ISO_A3] == undefined){
+                        tmp = 1;
+                    }else{
+                        tmp = tooltipData[d.properties.ISO_A3].length;
+                    }
+                    var rectHeight = tmp * 60;
+                    return rectHeight + "px";
+                })
             .style("left", function(){
                 return (d3.event.pageX) + "px";
                 })   
@@ -78,7 +103,7 @@ const generateWorldMap = async function () {
                 if(d3.event.pageY < mapHeight - 60)
                     return (d3.event.pageY-30) + "px";
                 else
-                    return (d3.event.pageY-150) + "px";
+                    return (d3.event.pageY-50) + "px";
                 })  
             })          
             .on("mouseout", function(d) {   
