@@ -2,14 +2,21 @@
 // http://bl.ocks.org/rgdonohue/9280446
 // info3300's note for March 4(usmap)
 
-const generateWorldMap = async function () {    
-   
+const generateWorldMap = async function () {
+    var color_sea = "lightblue"
+    var color_healthy = "white";
+    var color_localized = "orange";
+    var color_national = "red";     
+    var color_reopen = "lightgreen";
     const svg = d3.select("#world-map").append("svg")   // append a svg to our html div to hold our map
       .attr("width", 960)
       .attr("height", 500);
     const width = svg.attr("width");
     const height = svg.attr("height");
-
+    //tooltip reference: https://bl.ocks.org/tiffylou/88f58da4599c9b95232f5c89a6321992
+    var tooltip = d3.select("#world-map").append("div") 
+        .attr("class", "tooltip")       
+        .style("opacity", 0);
     const margin = { top: 20, right: 20, bottom: 20, left: 20 };
     const mapWidth = width - margin.left - margin.right;
     const mapHeight = height - margin.top - margin.bottom;
@@ -42,10 +49,14 @@ const generateWorldMap = async function () {
 
     const dataOriginal = await d3.csv("../datasets/covid_impact_education.csv");
     const dataISO = await d3.json("../datasets/ISO.json");
+    const [dataNational, dataLocalized, dataOpen] = processDataWorldLine(
+        dataOriginal,
+        dataISO
+    );
     const AlphaToNum = processISOData(dataISO);
     let surveyData = processWorldData(dataOriginal, AlphaToNum);
     // console.log("=-=-=-=-=-==-", surveyData[surveyData.length-1][0]["date"]);
-    
+
     g.selectAll("path")
         .data(countries.features)
         .enter()
@@ -55,8 +66,26 @@ const generateWorldMap = async function () {
             .attr("id", (d) => {//
                 return d.properties.ISO_A3;
             })
-        .append('title')
-            .text(d=>d.properties.NAME);
+        .on("mouseover", function(d) {    
+            tooltip.transition()    
+            .duration(200)    
+            .style("opacity", .9);    
+            tooltip.html(`<p>${d.properties.NAME}</p><p>blabla:</p><p> ${d.properties.NAME}</p><p>blabla:</p><p> ${d.properties.NAME}</p>` ) 
+            .style("left", function(){
+                return (d3.event.pageX) + "px";
+                })   
+            .style("top", function(){
+                if(d3.event.pageY < mapHeight - 60)
+                    return (d3.event.pageY-30) + "px";
+                else
+                    return (d3.event.pageY-150) + "px";
+                })  
+            })          
+            .on("mouseout", function(d) {   
+            tooltip.transition()    
+            .duration(500)    
+            .style("opacity", 0); 
+            });
 
     var countries_localized = [];
     var countries_national = [];
@@ -77,17 +106,19 @@ const generateWorldMap = async function () {
                 if(currentDateIdx < dateArray.length-1) {  
                     currentDateIdx +=1; 
                     sequenceMap(currentDateIdx);
+                    // draw(currentDateIdx);
                     d3.select('#world-map-clock').html(dateArray[currentDateIdx]);
                     playing = true; 
                 } else {
                     d3.select('#world-map-play').html('play');
                     currentDateIdx = 0;
+                    // draw(currentDateIdx);
                     clearInterval(timer); 
                     playing = false;
                     g.selectAll("path")
-                        .style("fill", 'white');
+                        .style("fill", color_healthy);
                     g.select(".Sphere")
-                        .style("fill", 'lightblue'); 
+                        .style("fill", color_sea); 
                     d3.select('#world-map-clock').html('date');
                 }
                
@@ -99,23 +130,21 @@ const generateWorldMap = async function () {
         }
     });
 
-    console.log("-=-=-=-",surveyData[0][0]["date"]);
     //for COVID situation of a certain day using slider
     //https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518
     var width_slider = 960;
-    var height_slider = 200;
+    var height_slider = 120;
     var margin_slider = { top: 20, right: 50, bottom: 50, left: 40 };
 
-    var sliderData = d3.range(1, surveyData.length).map(d => ({
-        dayIdx: d,
-        date: surveyData[d-1][0]["date"],//surveyData[0][0]['dateString']
-        value: 241// 241 countries and regions in the world    countries.features.length
-        // 【】combine with world_line_chart's data
-        // countries_localized: ?,
-        // countries_national:?,
-        // countries_reopen:? 
+    var sliderData = d3.range(0, surveyData.length).map(d => ({
+        dayIdx: d+1,
+        date: surveyData[d][0]["date"],//surveyData[0][0]['dateString']
+        value: 241,
+        countries_localized: dataLocalized[d]["count"],
+        countries_national:dataNational[d]["count"],
+        countries_reopen:dataOpen[d]["count"] 
     }));
-    console.log("-=-=",sliderData);
+    console.log("-=-=sliderData-=-=",sliderData);
 
     var svg_slider = d3
       .select('div#world-map-slider')
@@ -129,7 +158,7 @@ const generateWorldMap = async function () {
         .domain(sliderData.map(d => d.dayIdx))
         .range([margin_slider.left, width_slider - margin_slider.right])
         .padding(padding);
-
+    console.log('-=-=-!!=',d3.max(sliderData, d => d.date));
     var xLinear = d3
         .scaleLinear()
         .domain([
@@ -140,12 +169,64 @@ const generateWorldMap = async function () {
         margin.left + xBand.bandwidth() / 2 + xBand.step() * padding - 0.5,
         width - margin.right - xBand.bandwidth() / 2 - xBand.step() * padding - 0.5,
         ]);
-
     var y = d3
         .scaleLinear()
         .domain([0, d3.max(sliderData, d => d.value)])
         .nice()
         .range([height_slider - margin_slider.bottom, margin_slider.top]);
+
+    var bars1 = svg_slider
+        .append('g')
+        .selectAll('rect')
+        .data(sliderData);
+    var bars2 = svg_slider
+        .append('g')
+        .selectAll('rect')
+        .data(sliderData);
+    var bars3 = svg_slider
+        .append('g')
+        .selectAll('rect')
+        .data(sliderData);
+    var bars4 = svg_slider
+        .append('g')
+        .selectAll('rect')
+        .data(sliderData);
+    var barsEnter1 = bars1
+        .enter()
+        .append('rect')
+        .attr('x', d => xBand(d.dayIdx))
+        .attr('y', d => y(d.value))
+        .attr('height', d => y(0) - y(d.value))
+        .attr('fill', 'gray')
+        .attr('fill-opacity', '0.2')
+        .attr('width', xBand.bandwidth());
+    var barsEnter2 = bars2
+        .enter()
+        .append('rect')
+        .attr('x', d => xBand(d.dayIdx))
+        .attr('y', d => y(d.countries_national + d.countries_localized))
+        .attr('height', d =>y(0) -y(d.countries_localized))
+        .attr('fill', 'orange')
+        .attr('fill-opacity', '0.2')
+        .attr('width', xBand.bandwidth());
+    var barsEnter3 = bars3
+        .enter()
+        .append('rect')
+        .attr('x', d => xBand(d.dayIdx))
+        .attr('y', d => y(d.countries_national))
+        .attr('height', d =>y(0) -y(d.countries_national))
+        .attr('fill', 'red')
+        .attr('fill-opacity', '0.2')
+        .attr('width', xBand.bandwidth());
+    var barsEnter4 = bars4
+            .enter()
+            .append('rect')
+            .attr('x', d => xBand(d.dayIdx))
+            .attr('y', d => y(d.countries_national + d.countries_localized + d.countries_reopen))
+            .attr('height', d =>y(0) -y(d.countries_reopen))
+            .attr('fill', 'green')
+            .attr('fill-opacity', '0.2')
+            .attr('width', xBand.bandwidth());
  
     var slider = g =>
         g.attr('transform', `translate(0,${height_slider - margin_slider.bottom})`).call(
@@ -156,46 +237,46 @@ const generateWorldMap = async function () {
             .on('onchange', value => draw(value))
         );
     
-    var bars = svg_slider
-        .append('g')
-        .selectAll('rect')
-        .data(sliderData);
-    
-    var barsEnter = bars
-        .enter()
-        .append('rect')
-        .attr('x', d => xBand(d.dayIdx))
-        .attr('y', d => y(d.value))
-        .attr('height', d => y(0) - y(d.value))
-        .attr('width', xBand.bandwidth());
-    
     svg_slider.append('g').call(slider);
     
     var draw = selected => {
         var formatTime = d3.timeFormat("%m/%d"); 
         var curDate =  formatTime(selected);  
-        barsEnter
-          .merge(bars)
-          .attr('fill', d => (formatTime(d.date) === curDate ? '#bad80a' : '#e0e0e0'));
+        barsEnter1
+          .merge(bars1)
+          .attr('fill-opacity', d => (formatTime(d.date) === curDate ? '0.5' : '0.2'));
+        barsEnter2
+          .merge(bars2)
+          .attr('fill-opacity', d => (formatTime(d.date) === curDate ? '0.8' : '0.2'));
+        barsEnter3
+            .merge(bars3)
+            .attr('fill-opacity', d => (formatTime(d.date) === curDate ? '0.8' : '0.2'));
+        barsEnter4
+            .merge(bars4)
+            .attr('fill-opacity', d => (formatTime(d.date) === curDate ? '0.8' : '0.2'));
         var startDate = surveyData[0][0]['date'];
-        var idx = d3.timeDay.count(startDate,new Date(curDate)) + 6939;//【】
+        var dateParse = d3.timeParse("%m/%d");
+        var date_ = dateParse(curDate);
+        date_.setFullYear(2020);
+        var idx = d3.timeDay.count(startDate,date_);
+
         currentDateIdx = idx;
         d3.select('#world-map-clock').html(dateArray[currentDateIdx]);  
         sequenceMap(idx);
-        console.log("-=-=-=",idx);
-        d3.select('p#world-map-slider-value').text(
-          d3.format(",.2r")(sliderData[0].value) + " affected countries"
-        );
-        
+        d3.select('p#world-map-slider-value1')
+        .text(
+          d3.format("d")(sliderData[idx].countries_localized) + " countries have localized school closures"
+        ).style("color",color_localized); 
+        d3.select('p#world-map-slider-value2').text(
+            d3.format("d")(sliderData[idx].countries_national) + " countries have country-wide closures" 
+        ).style("color",color_national);; 
+        d3.select('p#world-map-slider-value3').text(
+            d3.format("d")(sliderData[idx].countries_reopen) + " affected countries decide to reopen the schools"
+        ).style("color",color_reopen);;       
     };
     
-    draw(10);
+    draw(surveyData[0][0]['date']);
 
-
-
-
-    
-    ////////////////
     function sequenceMap(day) {
         countries_localized = [];
         countries_national = [];
@@ -212,27 +293,27 @@ const generateWorldMap = async function () {
         }); 
 
         g.selectAll("path")
-            .style("fill", 'white');
+            .style("fill", color_healthy);
         g.select(".Sphere")
-            .style("fill", 'lightblue');
+            .style("fill", color_sea);
 
         countries_localized.forEach((id) => {
             g.select('path#'+id)
-                .style("fill", 'orange' )
+                .style("fill", color_localized )
                 .append('title')
                 .text('localized');
         });
     
         countries_national.forEach((id) => {
             g.select('path#'+id)
-                .style("fill", 'red' )
+                .style("fill", color_national )
                 .append('title')
                 .text('national');
         });
 
         countries_reopen.forEach((id) => {
             g.select('path#'+id)
-                .style("fill", 'lightgreen' )
+                .style("fill", color_reopen )
                 .append('title')
                 .text('reopen!');//d=>d.properties.name
         });

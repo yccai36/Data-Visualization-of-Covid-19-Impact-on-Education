@@ -81,6 +81,17 @@
     left: 65px;
 }
 
+#world-map div.tooltip { 
+    position: absolute;     
+    text-align: center;     
+    width: 180px;          
+    height: 150px;         
+    padding: 2px;       
+    font: 12px sans-serif;    
+    background: rgb(247, 218, 92); 
+    border: 0px;        
+    pointer-events: none;     
+}
 /* ========== World Line Chart Styles ========== */
 #world-line .gridlines line {
     stroke: #bbb;
