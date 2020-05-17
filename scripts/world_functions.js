@@ -47,3 +47,40 @@ const processWorldData = (dataOriginal, AlphaToNum) => {
     });
     return newData;
 };
+
+// process world data to generate data of tooltips on world map
+const processWorldMapTooltips = (data) => {
+    let tooltipData = {};
+    data.forEach((oneDayData) => {
+        let date = oneDayData[0]["date"];
+        let dateString = oneDayData[0]["dateString"];
+        let dateIndex = oneDayData[0]["dateIndex"];
+        oneDayData.forEach((element) => {
+            let alphaISO = element["alphaISO"];
+            let numISO = element["numISO"];
+            let country = element["country"];
+            let scale = element["scale"];
+            let item = {
+                startDate: date,
+                startDateString: dateString,
+                startDateIndex: dateIndex,
+                scale: scale,
+                country: country,
+                numISO: numISO,
+                alphaISO: alphaISO,
+            };
+
+            if (alphaISO in tooltipData) {
+                let array = tooltipData[alphaISO];
+                let oldItem = array[array.length - 1];
+                if (oldItem["scale"] != item["scale"]) {
+                    array.push(item);
+                }
+            } else {
+                tooltipData[alphaISO] = [item];
+            }
+        });
+    });
+
+    return tooltipData;
+};
