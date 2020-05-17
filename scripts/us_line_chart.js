@@ -50,6 +50,9 @@ const generateUSLineChart = async () => {
     );
     let [dataOrdered, dataRecommended] = processDataUSLine(dataOriginal);
 
+    const colorOrdered = "red";
+    const colorRecommended = "steelblue";
+
     const width = 900;
     const height = 500;
     const div = d3
@@ -171,7 +174,7 @@ const generateUSLineChart = async () => {
         .datum(dataOrdered)
         .attr("id", "ordered-line")
         .attr("fill", "none")
-        .attr("stroke", "red")
+        .attr("stroke", colorOrdered)
         .attr("stroke-width", lineWidth)
         .attr("d", lineGenerator);
 
@@ -186,7 +189,7 @@ const generateUSLineChart = async () => {
         .attr("cx", (d) => dateScale(d["date"]))
         .attr("cy", (d) => stateScale(d["count"]))
         .attr("fill", "white")
-        .attr("stroke", "red")
+        .attr("stroke", colorOrdered)
         .attr("stroke-width", 1);
 
     // line - recommended
@@ -195,7 +198,7 @@ const generateUSLineChart = async () => {
         .datum(dataRecommended)
         .attr("id", "recommended-line")
         .attr("fill", "none")
-        .attr("stroke", "steelblue")
+        .attr("stroke", colorRecommended)
         .attr("stroke-width", lineWidth)
         .attr("d", lineGenerator);
 
@@ -210,7 +213,7 @@ const generateUSLineChart = async () => {
         .attr("cx", (d) => dateScale(d["date"]))
         .attr("cy", (d) => stateScale(d["count"]))
         .attr("fill", "white")
-        .attr("stroke", "steelblue")
+        .attr("stroke", colorRecommended)
         .attr("stroke-width", 1);
 
     // ==== User Interactive Start === //
@@ -270,12 +273,12 @@ const generateUSLineChart = async () => {
         d3.selectAll("circle.ordered-point")
             .attr("r", pointRadius)
             .attr("fill", "white")
-            .attr("stroke", "red")
+            .attr("stroke", colorOrdered)
             .attr("stroke-width", 1);
         d3.selectAll("circle.recommended-point")
             .attr("r", pointRadius)
             .attr("fill", "white")
-            .attr("stroke", "steelblue")
+            .attr("stroke", colorRecommended)
             .attr("stroke-width", 1);
     });
 
@@ -324,23 +327,23 @@ const generateUSLineChart = async () => {
         d3.selectAll("circle.ordered-point")
             .attr("r", pointRadius)
             .attr("fill", "white")
-            .attr("stroke", "red")
+            .attr("stroke", colorOrdered)
             .attr("stroke-width", 1);
         d3.selectAll("circle.recommended-point")
             .attr("r", pointRadius)
             .attr("fill", "white")
-            .attr("stroke", "steelblue")
+            .attr("stroke", colorRecommended)
             .attr("stroke-width", 1);
 
         d3.select("circle#ordered" + newIndex)
             .attr("r", pointRadius + 2.5)
-            .attr("fill", "red")
+            .attr("fill", colorOrdered)
             .attr("stroke", "white")
             .attr("stroke-width", 2);
 
         d3.select("circle#recommended" + newIndex)
             .attr("r", pointRadius + 2.5)
-            .attr("fill", "steelblue")
+            .attr("fill", colorRecommended)
             .attr("stroke", "white")
             .attr("stroke-width", 2);
     });

@@ -100,24 +100,6 @@
     stroke: none;
 }
 
-#world-line path#localized-line {
-    stroke: steelblue;
-    stroke-width: 1.5px;
-    fill: none;
-}
-
-#world-line path#national-line {
-    stroke: red;
-    stroke-width: 1.5px;
-    fill: none;
-}
-
-#world-line path#open-line {
-    stroke: green;
-    stroke-width: 1.5px;
-    fill: none;
-}
-
 #world-line-div {
     position: relative;
 }
@@ -170,18 +152,6 @@ div.tooltip {
 #us-line .gridlines .domain {
     stroke: none;
 }
-
-/* #us-line path#ordered-line {
-    stroke: red;
-    stroke-width: 1.5px;
-    fill: none;
-}
-
-#us-line path#recommended-line {
-    stroke: steelblue;
-    stroke-width: 1.5px;
-    fill: none;
-} */
 
 #us-line-div {
     position: relative;
