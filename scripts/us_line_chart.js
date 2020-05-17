@@ -8,6 +8,7 @@ const processDataUSLine = (dataOriginal) => {
     data.forEach((element) => {
         let date = element[0]["date"];
         let dateString = element[0]["dateString"];
+        let dateIndex = element[0]["dateIndex"];
 
         let countOrdered = 0;
         let countRecommended = 0;
@@ -23,6 +24,7 @@ const processDataUSLine = (dataOriginal) => {
         let dataOneDayOrdered = {
             date: date,
             dateString: dateString,
+            dateIndex: dateIndex,
             status: "ordered",
             count: countOrdered,
         };
@@ -30,6 +32,7 @@ const processDataUSLine = (dataOriginal) => {
         let dataOneDayRecommended = {
             date: date,
             dateString: dateString,
+            dateIndex: dateIndex,
             status: "recommended",
             count: countRecommended,
         };
@@ -46,8 +49,6 @@ const generateUSLineChart = async () => {
         "../datasets/coronavirus-school-closures-data.csv"
     );
     let [dataOrdered, dataRecommended] = processDataUSLine(dataOriginal);
-    console.log(dataOrdered);
-    console.log(dataRecommended);
 
     const width = 900;
     const height = 500;
@@ -125,6 +126,25 @@ const generateUSLineChart = async () => {
         )
         .call(yAxis);
 
+    // line marker group
+    const markerGroup = svg
+        .append("g")
+        .attr("id", "marker-group")
+        .attr(
+            "transform",
+            "translate(" + padding.left + ", " + padding.top + ")"
+        )
+        .style("visibility", "hidden");
+
+    const markerLine = markerGroup
+        .append("line")
+        .attr("id", "marker-line")
+        .attr("fill", "none")
+        .attr("stroke", "#aaa")
+        .attr("stroke-width", "1")
+        .attr("y1", 0)
+        .attr("y2", plotHeight);
+
     // Plot group
     const plot = svg
         .append("g")
@@ -161,6 +181,7 @@ const generateUSLineChart = async () => {
         .data(dataOrdered)
         .join("circle")
         .attr("class", "point ordered-point")
+        .attr("id", (d) => "ordered" + d["dateIndex"])
         .attr("r", pointRadius)
         .attr("cx", (d) => dateScale(d["date"]))
         .attr("cy", (d) => stateScale(d["count"]))
@@ -184,6 +205,7 @@ const generateUSLineChart = async () => {
         .data(dataRecommended)
         .join("circle")
         .attr("class", "point recommended-point")
+        .attr("id", (d) => "recommended" + d["dateIndex"])
         .attr("r", pointRadius)
         .attr("cx", (d) => dateScale(d["date"]))
         .attr("cy", (d) => stateScale(d["count"]))
@@ -193,7 +215,7 @@ const generateUSLineChart = async () => {
 
     // ==== User Interactive Start === //
 
-    let activeGroup = svg
+    const activeGroup = svg
         .append("g")
         .attr("class", "active-group")
         .attr(
@@ -202,16 +224,7 @@ const generateUSLineChart = async () => {
         )
         .attr("visibility", "hidden");
 
-    let markerLine = activeGroup
-        .append("line")
-        .attr("class", "active-marker-line")
-        .attr("fill", "none")
-        .attr("stroke", "#aaa")
-        .attr("stroke-width", "1")
-        .attr("y1", 0)
-        .attr("y2", plotHeight);
-
-    let activeRect = activeGroup
+    const activeRect = activeGroup
         .append("rect")
         .attr("class", "active-rect")
         .attr("width", plotWidth)
@@ -219,7 +232,7 @@ const generateUSLineChart = async () => {
         .attr("fill", "none")
         .attr("pointer-events", "all");
 
-    let tooltip = d3
+    const tooltip = d3
         .select("#us-line-div")
         .append("div")
         .attr("class", "line-tooltip")
@@ -242,15 +255,28 @@ const generateUSLineChart = async () => {
 
     // Add interactive event handlers
     activeRect.on("mouseover", function () {
+        markerGroup.style("visibility", "visible");
         activeGroup.style("visibility", "visible");
 
         tooltip.style("visibility", "visible");
     });
 
     activeRect.on("mouseout", function () {
+        markerGroup.style("visibility", "hidden");
         activeGroup.style("visibility", "hidden");
 
         tooltip.style("visibility", "hidden");
+
+        d3.selectAll("circle.ordered-point")
+            .attr("r", pointRadius)
+            .attr("fill", "white")
+            .attr("stroke", "red")
+            .attr("stroke-width", 1);
+        d3.selectAll("circle.recommended-point")
+            .attr("r", pointRadius)
+            .attr("fill", "white")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 1);
     });
 
     activeRect.on("mousemove", function () {
@@ -293,6 +319,30 @@ const generateUSLineChart = async () => {
             tooltip.style("left", "auto").style("right", tooltipRight + "px");
         }
         tooltip.html(tooltipContent);
+
+        // emphasize points
+        d3.selectAll("circle.ordered-point")
+            .attr("r", pointRadius)
+            .attr("fill", "white")
+            .attr("stroke", "red")
+            .attr("stroke-width", 1);
+        d3.selectAll("circle.recommended-point")
+            .attr("r", pointRadius)
+            .attr("fill", "white")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 1);
+
+        d3.select("circle#ordered" + newIndex)
+            .attr("r", pointRadius + 2.5)
+            .attr("fill", "red")
+            .attr("stroke", "white")
+            .attr("stroke-width", 2);
+
+        d3.select("circle#recommended" + newIndex)
+            .attr("r", pointRadius + 2.5)
+            .attr("fill", "steelblue")
+            .attr("stroke", "white")
+            .attr("stroke-width", 2);
     });
 
     // ==== User Interactive End === //

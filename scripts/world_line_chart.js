@@ -166,6 +166,25 @@ const generateWorldLineChart = async () => {
         )
         .call(yAxis);
 
+    // line marker group
+    const markerGroup = svg
+        .append("g")
+        .attr("id", "marker-group")
+        .attr(
+            "transform",
+            "translate(" + padding.left + ", " + padding.top + ")"
+        )
+        .style("visibility", "hidden");
+
+    const markerLine = markerGroup
+        .append("line")
+        .attr("id", "marker-line")
+        .attr("fill", "none")
+        .attr("stroke", "#aaa")
+        .attr("stroke-width", "1")
+        .attr("y1", 0)
+        .attr("y2", plotHeight);
+
     // Plot group
     const plot = svg
         .append("g")
@@ -185,6 +204,9 @@ const generateWorldLineChart = async () => {
         .x((d) => dateScale(d["date"]))
         .y((d) => countryScale(d["count"]));
 
+    const lineWidth = 2;
+    const pointRadius = 2;
+
     // line - localized
     localizedPlot
         .append("path")
@@ -192,10 +214,9 @@ const generateWorldLineChart = async () => {
         .attr("id", "localized-line")
         .attr("fill", "none")
         .attr("stroke", "steelblue")
-        .attr("stroke-width", 2)
+        .attr("stroke-width", lineWidth)
         .attr("d", lineGenerator);
 
-    console.log(dataLocalized);
     // points - localized
     localizedPlot
         .selectAll("circle.point")
@@ -203,7 +224,7 @@ const generateWorldLineChart = async () => {
         .join("circle")
         .attr("class", "point localized-point")
         .attr("id", (d) => "localized" + d["dateIndex"])
-        .attr("r", 2)
+        .attr("r", pointRadius)
         .attr("cx", (d) => dateScale(d["date"]))
         .attr("cy", (d) => countryScale(d["count"]))
         .attr("fill", "white")
@@ -217,7 +238,7 @@ const generateWorldLineChart = async () => {
         .attr("id", "national-line")
         .attr("fill", "none")
         .attr("stroke", "red")
-        .attr("stroke-width", 2)
+        .attr("stroke-width", lineWidth)
         .attr("d", lineGenerator);
 
     // points - national
@@ -227,7 +248,7 @@ const generateWorldLineChart = async () => {
         .join("circle")
         .attr("class", "point national-point")
         .attr("id", (d) => "national" + d["dateIndex"])
-        .attr("r", 2)
+        .attr("r", pointRadius)
         .attr("cx", (d) => dateScale(d["date"]))
         .attr("cy", (d) => countryScale(d["count"]))
         .attr("fill", "white")
@@ -252,7 +273,7 @@ const generateWorldLineChart = async () => {
 
     // ==== User Interactive Start === //
 
-    let activeGroup = svg
+    const activeGroup = svg
         .append("g")
         .attr("class", "active-group")
         .attr(
@@ -261,16 +282,7 @@ const generateWorldLineChart = async () => {
         )
         .attr("visibility", "hidden");
 
-    let markerLine = activeGroup
-        .append("line")
-        .attr("class", "active-marker-line")
-        .attr("fill", "none")
-        .attr("stroke", "#aaa")
-        .attr("stroke-width", "1")
-        .attr("y1", 0)
-        .attr("y2", plotHeight);
-
-    let activeRect = activeGroup
+    const activeRect = activeGroup
         .append("rect")
         .attr("class", "active-rect")
         .attr("width", plotWidth)
@@ -278,7 +290,7 @@ const generateWorldLineChart = async () => {
         .attr("fill", "none")
         .attr("pointer-events", "all");
 
-    let tooltip = d3
+    const tooltip = d3
         .select("#world-line-div")
         .append("div")
         .attr("class", "line-tooltip")
@@ -301,15 +313,29 @@ const generateWorldLineChart = async () => {
 
     // Add interactive event handlers
     activeRect.on("mouseover", function () {
+        markerGroup.style("visibility", "visible");
+
         activeGroup.style("visibility", "visible");
 
         tooltip.style("visibility", "visible");
     });
 
     activeRect.on("mouseout", function () {
+        markerGroup.style("visibility", "hidden");
         activeGroup.style("visibility", "hidden");
 
         tooltip.style("visibility", "hidden");
+
+        d3.selectAll("circle.national-point")
+            .attr("r", 2)
+            .attr("fill", "white")
+            .attr("stroke", "red")
+            .attr("stroke-width", 1);
+        d3.selectAll("circle.localized-point")
+            .attr("r", 2)
+            .attr("fill", "white")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 1);
     });
 
     activeRect.on("mousemove", function () {
@@ -355,23 +381,23 @@ const generateWorldLineChart = async () => {
 
         // emphasize points
         d3.selectAll("circle.national-point")
-            .attr("r", 2)
+            .attr("r", pointRadius)
             .attr("fill", "white")
             .attr("stroke", "red")
             .attr("stroke-width", 1);
         d3.selectAll("circle.localized-point")
-            .attr("r", 2)
+            .attr("r", pointRadius)
             .attr("fill", "white")
             .attr("stroke", "steelblue")
             .attr("stroke-width", 1);
 
         d3.select("circle#national" + newIndex)
-            .attr("r", 4.5)
+            .attr("r", pointRadius + 2.5)
             .attr("fill", "red")
             .attr("stroke", "white")
             .attr("stroke-width", 2);
         d3.select("circle#localized" + newIndex)
-            .attr("r", 4.5)
+            .attr("r", pointRadius + 2.5)
             .attr("fill", "steelblue")
             .attr("stroke", "white")
             .attr("stroke-width", 2);
