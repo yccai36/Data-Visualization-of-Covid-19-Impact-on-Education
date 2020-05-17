@@ -1,16 +1,16 @@
 // return a JS objet that maps alpha ISO to num ISO
 const processISOData = (dataISO) => {
-    AlphaToNum = {};
+    alphaToNum = {};
     dataISO.forEach((element) => {
         let alpha = element["alpha-3"];
         let num = element["country-code"];
-        AlphaToNum[alpha] = num;
+        alphaToNum[alpha] = num;
     });
-    return AlphaToNum;
+    return alphaToNum;
 };
 
 // process original world data to an array grouped by dates
-const processWorldData = (dataOriginal, AlphaToNum) => {
+const processWorldData = (dataOriginal, alphaToNum) => {
     const dateParser = d3.timeParse("%d/%m/%Y");
     let dates = [];
     dataOriginal.forEach((element) => {
@@ -30,7 +30,7 @@ const processWorldData = (dataOriginal, AlphaToNum) => {
         let alphaISO = element["ISO"];
         let country = element["Country"].trim();
         let scale = element["Scale"];
-        let numISO = AlphaToNum[alphaISO];
+        let numISO = alphaToNum[alphaISO];
 
         let index = dates.indexOf(dateString);
         let item = {

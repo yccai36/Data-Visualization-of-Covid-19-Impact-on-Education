@@ -1,9 +1,8 @@
 // process orginal data, return arraies for 3 group to draw the world line chart
 const processDataWorldLine = (dataOriginal, dataISO) => {
-    const AlphaToNum = processISOData(dataISO);
-    const data = processWorldData(dataOriginal, AlphaToNum);
+    const alphaToNum = processISOData(dataISO);
+    const data = processWorldData(dataOriginal, alphaToNum);
 
-    // console.log(data);
     // init data
     let dataNational = [];
     let dataLocalized = [];
