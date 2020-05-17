@@ -81,16 +81,16 @@
     left: 65px;
 }
 
-#world-map div.tooltip { 
-    position: absolute;     
-    text-align: center;     
-    width: 180px;          
-    height: 150px;         
-    padding: 2px;       
-    font: 12px sans-serif;    
-    background: rgb(247, 218, 92); 
-    border: 0px;        
-    pointer-events: none;     
+#world-map div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 180px;
+    height: 150px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: rgb(247, 218, 92);
+    border: 0px;
+    pointer-events: none;
 }
 /* ========== World Line Chart Styles ========== */
 #world-line .gridlines line {
@@ -99,24 +99,6 @@
 
 #world-line .gridlines .domain {
     stroke: none;
-}
-
-#world-line path#localized-line {
-    stroke: steelblue;
-    stroke-width: 1.5px;
-    fill: none;
-}
-
-#world-line path#national-line {
-    stroke: red;
-    stroke-width: 1.5px;
-    fill: none;
-}
-
-#world-line path#open-line {
-    stroke: green;
-    stroke-width: 1.5px;
-    fill: none;
 }
 
 #world-line-div {
@@ -171,18 +153,6 @@ div.tooltip {
 #us-line .gridlines .domain {
     stroke: none;
 }
-
-/* #us-line path#ordered-line {
-    stroke: red;
-    stroke-width: 1.5px;
-    fill: none;
-}
-
-#us-line path#recommended-line {
-    stroke: steelblue;
-    stroke-width: 1.5px;
-    fill: none;
-} */
 
 #us-line-div {
     position: relative;

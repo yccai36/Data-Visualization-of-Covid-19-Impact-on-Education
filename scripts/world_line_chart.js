@@ -67,9 +67,9 @@ const generateWorldLineChart = async () => {
         dataOriginal,
         dataISO
     );
-    // console.log(dataNational);
-    // console.log(dataLocalized);
-    // console.log(dataOpen);
+    const colorNational = "green";
+    const colorLocalized = "blue";
+    const colorOpen = "yellow";
 
     const width = 900;
     const height = 500;
@@ -212,7 +212,7 @@ const generateWorldLineChart = async () => {
         .datum(dataLocalized)
         .attr("id", "localized-line")
         .attr("fill", "none")
-        .attr("stroke", "steelblue")
+        .attr("stroke", colorLocalized)
         .attr("stroke-width", lineWidth)
         .attr("d", lineGenerator);
 
@@ -227,7 +227,7 @@ const generateWorldLineChart = async () => {
         .attr("cx", (d) => dateScale(d["date"]))
         .attr("cy", (d) => countryScale(d["count"]))
         .attr("fill", "white")
-        .attr("stroke", "steelblue")
+        .attr("stroke", colorLocalized)
         .attr("stroke-width", 1);
 
     // line - national
@@ -236,7 +236,7 @@ const generateWorldLineChart = async () => {
         .datum(dataNational)
         .attr("id", "national-line")
         .attr("fill", "none")
-        .attr("stroke", "red")
+        .attr("stroke", colorNational)
         .attr("stroke-width", lineWidth)
         .attr("d", lineGenerator);
 
@@ -251,7 +251,7 @@ const generateWorldLineChart = async () => {
         .attr("cx", (d) => dateScale(d["date"]))
         .attr("cy", (d) => countryScale(d["count"]))
         .attr("fill", "white")
-        .attr("stroke", "red")
+        .attr("stroke", colorNational)
         .attr("stroke-width", 1);
 
     // // line - school reopen
@@ -328,12 +328,12 @@ const generateWorldLineChart = async () => {
         d3.selectAll("circle.national-point")
             .attr("r", 2)
             .attr("fill", "white")
-            .attr("stroke", "red")
+            .attr("stroke", colorNational)
             .attr("stroke-width", 1);
         d3.selectAll("circle.localized-point")
             .attr("r", 2)
             .attr("fill", "white")
-            .attr("stroke", "steelblue")
+            .attr("stroke", colorLocalized)
             .attr("stroke-width", 1);
     });
 
@@ -382,22 +382,22 @@ const generateWorldLineChart = async () => {
         d3.selectAll("circle.national-point")
             .attr("r", pointRadius)
             .attr("fill", "white")
-            .attr("stroke", "red")
+            .attr("stroke", colorNational)
             .attr("stroke-width", 1);
         d3.selectAll("circle.localized-point")
             .attr("r", pointRadius)
             .attr("fill", "white")
-            .attr("stroke", "steelblue")
+            .attr("stroke", colorLocalized)
             .attr("stroke-width", 1);
 
         d3.select("circle#national" + newIndex)
             .attr("r", pointRadius + 2.5)
-            .attr("fill", "red")
+            .attr("fill", colorNational)
             .attr("stroke", "white")
             .attr("stroke-width", 2);
         d3.select("circle#localized" + newIndex)
             .attr("r", pointRadius + 2.5)
-            .attr("fill", "steelblue")
+            .attr("fill", colorLocalized)
             .attr("stroke", "white")
             .attr("stroke-width", 2);
     });
