@@ -273,7 +273,7 @@ const generateUSLineChart = async () => {
         // let dateString = newDate.toDateString();
         let countOrdered = dataOrdered[newIndex]["count"];
         let countRecommended = dataRecommended[newIndex]["count"];
-        let tooltipContent = `<p>${dateString}</p><p>State ordered closure: ${countOrdered}</p><p>State recommended closure: ${countRecommended}</p>`;
+        let tooltipContent = `<p>${dateString}</p><p>States ordered closure: ${countOrdered}</p><p>States recommended closure: ${countRecommended}</p>`;
 
         // tooltip position
         let tooltipTop = padding.top + mouseY + 20;

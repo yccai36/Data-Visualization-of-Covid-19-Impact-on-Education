@@ -12,6 +12,7 @@ const processDataWorldLine = (dataOriginal, dataISO) => {
     data.forEach((element) => {
         let date = element[0]["date"];
         let dateString = element[0]["dateString"];
+        let dateIndex = element[0]["dateIndex"];
         let countNational = 0;
         let countLocalized = 0;
         let countOpen = 0;
@@ -29,6 +30,7 @@ const processDataWorldLine = (dataOriginal, dataISO) => {
         let dataOneDayNational = {
             date: date,
             dateString: dateString,
+            dateIndex: dateIndex,
             scale: "national",
             count: countNational,
         };
@@ -36,6 +38,7 @@ const processDataWorldLine = (dataOriginal, dataISO) => {
         let dataOneDayLocalized = {
             date: date,
             dateString: dateString,
+            dateIndex: dateIndex,
             scale: "localized",
             count: countLocalized,
         };
@@ -43,6 +46,7 @@ const processDataWorldLine = (dataOriginal, dataISO) => {
         let dataOneDayOpen = {
             date: date,
             dateString: dateString,
+            dateIndex: dateIndex,
             scale: "open",
             count: countOpen,
         };
@@ -70,6 +74,10 @@ const generateWorldLineChart = async () => {
 
     const width = 900;
     const height = 500;
+    const div = d3
+        .select("#world-line-div")
+        .style("width", width + "px")
+        .style("height", height + "px");
     const svg = d3
         .select("#world-line")
         .attr("width", width)
@@ -87,8 +95,8 @@ const generateWorldLineChart = async () => {
     // const firstDate = dataLocalized[0]["date"];
     // const lastDate = dataLocalized[dataLocalized.length - 1]["date"];
 
-    const firstDate = new Date(2020, 1, 10);
-    const lastDate = new Date(2020, 4, 29);
+    const firstDate = new Date(2020, 1, 12);
+    const lastDate = new Date(2020, 4, 26);
 
     const dateScale = d3
         .scaleTime()
@@ -133,7 +141,7 @@ const generateWorldLineChart = async () => {
     const xAxis = d3
         .axisBottom(dateScale)
         .tickFormat(d3.timeFormat("%m/%d"))
-        .tickSize(0)
+        .tickSize(5)
         .ticks(d3.timeWeek.every(1))
         .tickPadding(10);
 
@@ -187,12 +195,14 @@ const generateWorldLineChart = async () => {
         .attr("stroke-width", 2)
         .attr("d", lineGenerator);
 
+    console.log(dataLocalized);
     // points - localized
     localizedPlot
         .selectAll("circle.point")
         .data(dataLocalized)
         .join("circle")
         .attr("class", "point localized-point")
+        .attr("id", (d) => "localized" + d["dateIndex"])
         .attr("r", 2)
         .attr("cx", (d) => dateScale(d["date"]))
         .attr("cy", (d) => countryScale(d["count"]))
@@ -216,6 +226,7 @@ const generateWorldLineChart = async () => {
         .data(dataNational)
         .join("circle")
         .attr("class", "point national-point")
+        .attr("id", (d) => "national" + d["dateIndex"])
         .attr("r", 2)
         .attr("cx", (d) => dateScale(d["date"]))
         .attr("cy", (d) => countryScale(d["count"]))
@@ -238,6 +249,135 @@ const generateWorldLineChart = async () => {
     //             .x((d) => dateScale(d["date"]))
     //             .y((d) => countryScale(d["count"]))
     //     );
+
+    // ==== User Interactive Start === //
+
+    let activeGroup = svg
+        .append("g")
+        .attr("class", "active-group")
+        .attr(
+            "transform",
+            "translate(" + padding.left + ", " + padding.top + ")"
+        )
+        .attr("visibility", "hidden");
+
+    let markerLine = activeGroup
+        .append("line")
+        .attr("class", "active-marker-line")
+        .attr("fill", "none")
+        .attr("stroke", "#aaa")
+        .attr("stroke-width", "1")
+        .attr("y1", 0)
+        .attr("y2", plotHeight);
+
+    let activeRect = activeGroup
+        .append("rect")
+        .attr("class", "active-rect")
+        .attr("width", plotWidth)
+        .attr("height", plotHeight)
+        .attr("fill", "none")
+        .attr("pointer-events", "all");
+
+    let tooltip = d3
+        .select("#world-line-div")
+        .append("div")
+        .attr("class", "line-tooltip")
+        .style("visibility", "hidden");
+
+    // find the closest date to the mouse position
+    const findDate = (data, mouseDate) => {
+        let bisector = d3.bisector((d) => d["date"]).right;
+        let index = bisector(data, mouseDate);
+        // special cases: index == 0, index === data.length
+        if (index === 0) return [index, data[index]["date"]];
+        if (index === data.length) return [index - 1, data[index - 1]["date"]];
+
+        const date1 = data[index - 1]["date"];
+        const date2 = data[index]["date"];
+        return mouseDate - date1 < date2 - mouseDate
+            ? [index - 1, date1]
+            : [index, date2];
+    };
+
+    // Add interactive event handlers
+    activeRect.on("mouseover", function () {
+        activeGroup.style("visibility", "visible");
+
+        tooltip.style("visibility", "visible");
+    });
+
+    activeRect.on("mouseout", function () {
+        activeGroup.style("visibility", "hidden");
+
+        tooltip.style("visibility", "hidden");
+    });
+
+    activeRect.on("mousemove", function () {
+        // marker line
+        // get mouse position
+        let [mouseX, mouseY] = d3.mouse(this);
+        // get mouse corresponding date
+        let mouseDate = dateScale.invert(mouseX);
+        // find the closest date
+        let [newIndex, newDate] = findDate(dataLocalized, mouseDate);
+        let markerX = dateScale(newDate);
+        markerLine.attr("x1", markerX).attr("x2", markerX);
+
+        // tooltip content
+        let dateString = newDate.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+        // let dateString = newDate.toDateString();
+        let countLocalized = dataLocalized[newIndex]["count"];
+        let countNational = dataNational[newIndex]["count"];
+        let tooltipContent = `<p>${dateString}</p><p>Countries national closure: ${countNational}</p><p>Countries localized closure: ${countLocalized}</p>`;
+
+        // tooltip position
+        let tooltipTop = padding.top + mouseY + 20;
+        let tooltipBottom = plotHeight - mouseY + padding.bottom + 20;
+        let tooltipLeft = padding.left + markerX + 20;
+        let tooltipRight = plotWidth - markerX + padding.right + 20;
+
+        if (tooltipTop < height * (2 / 3)) {
+            tooltip.style("top", tooltipTop + "px").style("bottom", "auto");
+        } else {
+            tooltip.style("top", "auto").style("bottom", tooltipBottom + "px");
+        }
+
+        if (tooltipLeft < width * (2 / 3)) {
+            tooltip.style("left", tooltipLeft + "px").style("right", "auto");
+        } else {
+            tooltip.style("left", "auto").style("right", tooltipRight + "px");
+        }
+        tooltip.html(tooltipContent);
+
+        // emphasize points
+        d3.selectAll("circle.national-point")
+            .attr("r", 2)
+            .attr("fill", "white")
+            .attr("stroke", "red")
+            .attr("stroke-width", 1);
+        d3.selectAll("circle.localized-point")
+            .attr("r", 2)
+            .attr("fill", "white")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 1);
+
+        d3.select("circle#national" + newIndex)
+            .attr("r", 4.5)
+            .attr("fill", "red")
+            .attr("stroke", "white")
+            .attr("stroke-width", 2);
+        d3.select("circle#localized" + newIndex)
+            .attr("r", 4.5)
+            .attr("fill", "steelblue")
+            .attr("stroke", "white")
+            .attr("stroke-width", 2);
+    });
+
+    // ==== User Interactive End === //
 };
 
 generateWorldLineChart();
