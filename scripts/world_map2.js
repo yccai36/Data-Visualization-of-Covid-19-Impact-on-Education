@@ -29,46 +29,49 @@ const generateWorldMap = async function () {
         .select("#world-map")
         .attr("width", width)
         .attr("height", height);
-    
-    const width_legendSVG = 200;
-    const height_legendSVG = 200;
-    const legendSVG = d3
-        .select("#world-map-legend")
-        .attr("width", width_legendSVG)
-        .attr("height", height_legendSVG);
-    var legend_names = ["localized closure", "nationalized closure","open/no record"];
-    var legend_range = [color_localized,color_national,color_reopen];
 
-    var colorScale = d3.scaleOrdinal()
-                         .domain(legend_names)
-                         .range(legend_range);
+    const legendSVG = d3.select("#world-map-legend");
+    var legend_names = [
+        "localized closure",
+        "nationalized closure",
+        "open/no record",
+    ];
+    var legend_range = [color_localized, color_national, color_reopen];
 
-    legendSVG.selectAll("mysquare")
+    var colorScale = d3.scaleOrdinal().domain(legend_names).range(legend_range);
+
+    legendSVG
+        .selectAll("mysquare")
         .data(legend_names)
         .enter()
         .append("rect")
-        .attr("stroke", 'gray')
-        .attr("stroke-width", '0.02em')
+        .attr("stroke", "gray")
+        .attr("stroke-width", "0.02em")
         .attr("x", 10)
-        .attr("y", function(d, i){
-            return 50 + i*30;
+        .attr("y", function (d, i) {
+            return 50 + i * 30;
         })
         .attr("width", 20)
         .attr("height", 20)
-        .style("fill", d => { return colorScale(d) });
+        .style("fill", (d) => {
+            return colorScale(d);
+        });
 
-    legendSVG.selectAll("mylegend")
+    legendSVG
+        .selectAll("mylegend")
         .data(legend_names)
         .enter()
         .append("text")
-        .attr("x", 40  )
-        .attr("y", function(d, i){
-            return 50 + i*30 + 10 ;
+        .attr("x", 40)
+        .attr("y", function (d, i) {
+            return 50 + i * 30 + 10;
         })
         .style("fill", "black")
-        .text( d => { return d })
-        .attr("width",50)
-        .attr("height",20)
+        .text((d) => {
+            return d;
+        })
+        .attr("width", 50)
+        .attr("height", 20)
         .attr("text-anchor", "start")
         .style("alignment-baseline", "middle");
 

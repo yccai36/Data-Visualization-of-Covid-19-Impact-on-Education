@@ -9,6 +9,10 @@
     grid-template-columns: 1fr 1fr;
 }
 
+#world-map-legend-container {
+    position: relative;
+}
+
 #world-map-container {
     position: relative;
 }
