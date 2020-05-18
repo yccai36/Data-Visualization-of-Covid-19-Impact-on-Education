@@ -7,7 +7,7 @@ const generateWorldMap = async function () {
     let color_healthy = "white";
     let color_localized = "orange";
     let color_national = "red";
-    let color_reopen = "lightgreen";
+    let color_reopen = "white";
 
     let colors = [
         color_healthy,
