@@ -71,7 +71,6 @@ const generateWorldMap = async function () {
     const dataISO = await d3.json("../datasets/ISO.json");
     const AlphaToNum = processISOData(dataISO);
     let surveyData = processWorldData(dataOriginal, AlphaToNum);
-    console.log("-==",surveyData);
     const tooltipData = processWorldMapTooltips(surveyData);
 
     map.selectAll("path")
@@ -154,9 +153,16 @@ const generateWorldMap = async function () {
             animation = setInterval(function () {
                 if (currentDateIndex <= dateArray.length - 1) {
                     //update slider
-                    var formatTime = d3.timeFormat("%m/%d"); 
-                    var curDate =  formatTime(surveyData[currentDateIndex][0]["date"]);
-                    d3.select(".parameter-value").attr("transform", "translate(" + xLinear(surveyData[currentDateIndex][0]["date"]) + ",0)");
+                    var formatTime = d3.timeFormat("%m/%d");
+                    var curDate = formatTime(
+                        surveyData[currentDateIndex][0]["date"]
+                    );
+                    d3.select(".parameter-value").attr(
+                        "transform",
+                        "translate(" +
+                            xLinear(surveyData[currentDateIndex][0]["date"]) +
+                            ",0)"
+                    );
                     d3.select(".parameter-value text").text(curDate);
                     // update map to current date
                     updateMap(surveyData, map, currentDateIndex, colors);
@@ -186,8 +192,9 @@ const generateWorldMap = async function () {
     let height_slider = 100;
     let margin_slider = { top: 20, right: 50, bottom: 50, left: 40 };
 
-    let sliderData = d3.range(0, surveyData.length).map((d) => ({//surveyData[d][0]["date"]
-        date: surveyData[d][0]["date"]
+    let sliderData = d3.range(0, surveyData.length).map((d) => ({
+        //surveyData[d][0]["date"]
+        date: surveyData[d][0]["date"],
     }));
 
     let svg_slider = d3
@@ -197,18 +204,13 @@ const generateWorldMap = async function () {
         .attr("height", height_slider);
 
     //slide bar does not show the last day when domain is larger than 20s, so change domain of xLinear from[mindate, maxdate] to [mindate, maxdate]
-    var datebug = new Date(surveyData[surveyData.length-1][0]["date"]);
+    var datebug = new Date(surveyData[surveyData.length - 1][0]["date"]);
     datebug.setDate(datebug.getDate() + 1);
-    
+
     let xLinear = d3
         .scaleLinear()
-        .domain([
-            surveyData[0][0]["date"], datebug,
-        ])
-        .range([
-            margin.left,
-            width - margin.right,
-        ]);
+        .domain([surveyData[0][0]["date"], datebug])
+        .range([margin.left, width - margin.right]);
 
     let slider = (g) =>
         g
@@ -240,8 +242,8 @@ const generateWorldMap = async function () {
         d3.select("#world-map-clock").html(dateArray[currentDateIndex]);
         updateMap(surveyData, map, currentDateIndex, colors);
         clearInterval(animation);
-            playing = false;
-            d3.select("#world-map-play").html("Play");
+        playing = false;
+        d3.select("#world-map-play").html("Play");
     };
 };
 
