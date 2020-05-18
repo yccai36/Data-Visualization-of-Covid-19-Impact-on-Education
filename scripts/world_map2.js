@@ -202,7 +202,7 @@ const generateWorldMap = async function () {
         .attr("width", width_slider)
         .attr("height", height_slider);
 
-    let padding = 0.1;
+    let padding = 0.6;
     let xBand = d3
         .scaleBand()
         .domain(sliderData.map((d) => d.dayIdx))
@@ -228,49 +228,6 @@ const generateWorldMap = async function () {
         .nice()
         .range([height_slider - margin_slider.bottom, margin_slider.top]);
 
-    let bars1 = svg_slider.append("g").selectAll("rect").data(sliderData);
-    let bars2 = svg_slider.append("g").selectAll("rect").data(sliderData);
-    let bars3 = svg_slider.append("g").selectAll("rect").data(sliderData);
-    let bars4 = svg_slider.append("g").selectAll("rect").data(sliderData);
-    let barsEnter1 = bars1
-        .enter()
-        .append("rect")
-        .attr("x", (d) => xBand(d.dayIdx))
-        .attr("y", (d) => y(d.value))
-        .attr("height", (d) => y(0) - y(d.value))
-        .attr("fill", "gray")
-        .attr("fill-opacity", "0.2")
-        .attr("width", xBand.bandwidth());
-    let barsEnter2 = bars2
-        .enter()
-        .append("rect")
-        .attr("x", (d) => xBand(d.dayIdx))
-        .attr("y", (d) => y(d.countries_national + d.countries_localized))
-        .attr("height", (d) => y(0) - y(d.countries_localized))
-        .attr("fill", "orange")
-        .attr("fill-opacity", "0.2")
-        .attr("width", xBand.bandwidth());
-    let barsEnter3 = bars3
-        .enter()
-        .append("rect")
-        .attr("x", (d) => xBand(d.dayIdx))
-        .attr("y", (d) => y(d.countries_national))
-        .attr("height", (d) => y(0) - y(d.countries_national))
-        .attr("fill", "red")
-        .attr("fill-opacity", "0.2")
-        .attr("width", xBand.bandwidth());
-    let barsEnter4 = bars4
-        .enter()
-        .append("rect")
-        .attr("x", (d) => xBand(d.dayIdx))
-        .attr("y", (d) =>
-            y(d.countries_national + d.countries_localized + d.countries_reopen)
-        )
-        .attr("height", (d) => y(0) - y(d.countries_reopen))
-        .attr("fill", "green")
-        .attr("fill-opacity", "0.2")
-        .attr("width", xBand.bandwidth());
-
     let slider = (g) =>
         g
             .attr(
@@ -291,26 +248,6 @@ const generateWorldMap = async function () {
     let draw = (selected) => {
         let formatTime = d3.timeFormat("%m/%d");
         let curDate = formatTime(selected);
-        barsEnter1
-            .merge(bars1)
-            .attr("fill-opacity", (d) =>
-                formatTime(d.date) === curDate ? "0.5" : "0.2"
-            );
-        barsEnter2
-            .merge(bars2)
-            .attr("fill-opacity", (d) =>
-                formatTime(d.date) === curDate ? "0.8" : "0.2"
-            );
-        barsEnter3
-            .merge(bars3)
-            .attr("fill-opacity", (d) =>
-                formatTime(d.date) === curDate ? "0.8" : "0.2"
-            );
-        barsEnter4
-            .merge(bars4)
-            .attr("fill-opacity", (d) =>
-                formatTime(d.date) === curDate ? "0.8" : "0.2"
-            );
         let startDate = surveyData[0][0]["date"];
         let dateParse = d3.timeParse("%m/%d");
         let date_ = dateParse(curDate);
@@ -320,24 +257,6 @@ const generateWorldMap = async function () {
         currentDateIndex = idx;
         d3.select("#world-map-clock").html(dateArray[currentDateIndex]);
         updateMap(surveyData, map, currentDateIndex, colors);
-        d3.select("p#world-map-slider-value1")
-            .text(
-                d3.format("d")(sliderData[idx].countries_localized) +
-                    " countries have localized school closures"
-            )
-            .style("color", color_localized);
-        d3.select("p#world-map-slider-value2")
-            .text(
-                d3.format("d")(sliderData[idx].countries_national) +
-                    " countries have country-wide closures"
-            )
-            .style("color", color_national);
-        d3.select("p#world-map-slider-value3")
-            .text(
-                d3.format("d")(sliderData[idx].countries_reopen) +
-                    " affected countries decide to reopen the schools"
-            )
-            .style("color", color_reopen);
     };
 };
 
