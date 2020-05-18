@@ -159,6 +159,11 @@ const generateWorldMap = async function () {
             d3.select(this).html("Pause");
             animation = setInterval(function () {
                 if (currentDateIndex <= dateArray.length - 1) {
+                    //update slider
+                    var formatTime = d3.timeFormat("%m/%d"); 
+                    var curDate =  formatTime(surveyData[currentDateIndex][0]["date"]);
+                    d3.select(".parameter-value").attr("transform", "translate(" + xLinear(surveyData[currentDateIndex][0]["date"]) + ",0)");
+                    d3.select(".parameter-value text").text(curDate);
                     // update map to current date
                     updateMap(surveyData, map, currentDateIndex, colors);
                     d3.select("#world-map-clock").html(
@@ -202,7 +207,7 @@ const generateWorldMap = async function () {
         .attr("width", width_slider)
         .attr("height", height_slider);
 
-    let padding = 0.6;
+    let padding = 0.2;
     let xBand = d3
         .scaleBand()
         .domain(sliderData.map((d) => d.dayIdx))
@@ -216,11 +221,7 @@ const generateWorldMap = async function () {
         ])
         .range([
             margin.left + xBand.bandwidth() / 2 + xBand.step() * padding - 0.5,
-            width -
-                margin.right -
-                xBand.bandwidth() / 2 -
-                xBand.step() * padding -
-                0.5,
+            width - margin.right - xBand.bandwidth() / 2 - xBand.step() * padding -0.5,
         ]);
     let y = d3
         .scaleLinear()
@@ -257,6 +258,9 @@ const generateWorldMap = async function () {
         currentDateIndex = idx;
         d3.select("#world-map-clock").html(dateArray[currentDateIndex]);
         updateMap(surveyData, map, currentDateIndex, colors);
+        clearInterval(animation);
+            playing = false;
+            d3.select(this).html("Play");
     };
 };
 
