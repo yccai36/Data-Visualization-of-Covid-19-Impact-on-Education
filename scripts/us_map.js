@@ -8,6 +8,8 @@
 var dateArray = [];
 var currentDateIdx = 0;
 var play = false;
+var color_ordered = "rgb(228, 26, 28)";
+var color_recommended = "rgb(55, 126, 184)";
 
 const usmapGenerator = async function () {
     // sets the inner HTML with the specified value on all selected elements
@@ -54,7 +56,6 @@ const usmapGenerator = async function () {
                     // .text("I am the state!");
 
     // 2a. Draw a  map of states with white stroke
-    console.log(states.features);
     map.selectAll("path.state")
         .data(states.features)
         .join("path")
@@ -72,7 +73,7 @@ const usmapGenerator = async function () {
             tooltip.transition()		
                 .duration(200)		
                 .style("opacity", .8)
-            tooltip .html( "StateAbbr:" + "<br/>" + idToStateName[d.id] )
+            tooltip .html( "StateAbbr:" +  "<br>"  + idToStateName[d.id]  )
                     .style("left",(d3.event.pageX) + "px")
                     .style("top",(d3.event.pageY - 26) + "px");
         })
@@ -89,6 +90,7 @@ const usmapGenerator = async function () {
         "datasets/coronavirus-school-closures-data.csv" 
     ); 
     var data = processUSDate(dataOriginal);
+    console.log("data", data);
 
     // 3b. generate an array of beginning dats of the virus pandemic from the processed data
     for (let i = 0; i < data.length; i++) {
@@ -147,16 +149,12 @@ const usmapGenerator = async function () {
         console.log("begin cloring");
         states_ordered_closure.forEach((id) => {
             map.select("path#" + id)
-                .style("fill", "rgb(228, 26, 28)")
-                .append("title")
-                .text("ordered closure");
+                .style("fill", color_ordered);
         });
 
         states_recommended_closure.forEach((id) => {
             map.select("path#" + id)
-                .style("fill", "rgb(55, 126, 184)")
-                .append("title")
-                .text("recommened closure");
+                .style("fill", color_recommended);
         });
     }
 
