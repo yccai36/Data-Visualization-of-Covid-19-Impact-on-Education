@@ -43,14 +43,13 @@
     left: 65px;
 }
 
-#world-map div.tooltip {
+#world-map-container .tooltip {
     position: absolute;
     text-align: center;
-    width: 180px;
-    padding: 0px;
-    font: 12px sans-serif;
+    padding: 0 10px;
+    font: 1rem sans-serif;
     background: rgb(247, 218, 92);
-    border: 0px;
+    border-radius: 5px;
     pointer-events: none;
 }
 /* ========== World Line Chart Styles ========== */
@@ -88,7 +87,7 @@
     left: 15px;
 }
 
-div.tooltip {
+#us-map-wrapper div.tooltip {
     position: absolute;
     text-align: left;
     width: 60px;

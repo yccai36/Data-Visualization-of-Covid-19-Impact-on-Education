@@ -32,10 +32,10 @@ const generateWorldMap = async function () {
 
     //tooltip reference: https://bl.ocks.org/tiffylou/88f58da4599c9b95232f5c89a6321992
     let tooltip = d3
-        .select("#world-map")
+        .select("#world-map-container")
         .append("div")
         .attr("class", "tooltip")
-        .style("opacity", 0);
+        .style("visibility", "hidden");
     const margin = { top: 20, right: 20, bottom: 20, left: 20 };
     const mapWidth = width - margin.left - margin.right;
     const mapHeight = height - margin.top - margin.bottom;
@@ -87,44 +87,53 @@ const generateWorldMap = async function () {
             return d.properties.ISO_A3;
         })
         .on("mouseover", function (d) {
-            tooltip.transition().duration(200).style("opacity", 0.9);
-            tooltip
-                .html(function () {
-                    let tmp = `<p>${d.properties.NAME}</p>`;
-                    if (tooltipData[d.properties.ISO_A3] == undefined) {
-                        tmp = tmp + `<p>No record</p>`;
-                        return tmp;
-                    } else {
-                        tooltipData[d.properties.ISO_A3].forEach((row) => {
-                            let tmp2 = `<p> ${
-                                row["startDateString"] + ": " + row["scale"]
-                            }</p>`;
-                            tmp = tmp + tmp2;
-                        });
-                        return tmp;
-                    }
-                })
-                .style("height", function () {
-                    let tmp;
-                    if (tooltipData[d.properties.ISO_A3] == undefined) {
-                        tmp = 1;
-                    } else {
-                        tmp = tooltipData[d.properties.ISO_A3].length;
-                    }
-                    let rectHeight = tmp * 60;
-                    return rectHeight + "px";
-                })
-                .style("left", function () {
-                    return d3.event.pageX + "px";
-                })
-                .style("top", function () {
-                    if (d3.event.pageY < mapHeight - 60)
-                        return d3.event.pageY - 30 + "px";
-                    else return d3.event.pageY - 50 + "px";
-                });
+            tooltip.style("visibility", "visible");
         })
         .on("mouseout", function (d) {
-            tooltip.transition().duration(500).style("opacity", 0);
+            tooltip.style("visibility", "hidden");
+        })
+        .on("mousemove", function (d) {
+            let [mouseX, mouseY] = d3.mouse(this);
+
+            let tooltipTop = margin.top + mouseY + 20;
+            let tooltipBottom = mapHeight - mouseY + margin.bottom + 20;
+            let tooltipLeft = margin.left + mouseX + 20;
+            let tooltipRight = mapWidth - mouseX + margin.right + 20;
+
+            let tooltipContent = `<p>${d.properties.NAME}</p>`;
+            if (!tooltipData[d.properties.ISO_A3]) {
+                tooltipContent += `<p>No record</p>`;
+            } else {
+                tooltipData[d.properties.ISO_A3].forEach((row) => {
+                    tooltipContent += `<p> ${
+                        row["startDate"].toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                        }) +
+                        " update: " +
+                        row["scale"]
+                    }</p>`;
+                });
+            }
+
+            if (tooltipTop < height * (2 / 3)) {
+                tooltip.style("top", tooltipTop + "px").style("bottom", "auto");
+            } else {
+                tooltip
+                    .style("top", "auto")
+                    .style("bottom", tooltipBottom + "px");
+            }
+
+            if (tooltipLeft < width * (2 / 3)) {
+                tooltip
+                    .style("left", tooltipLeft + "px")
+                    .style("right", "auto");
+            } else {
+                tooltip
+                    .style("left", "auto")
+                    .style("right", tooltipRight + "px");
+            }
+            tooltip.html(tooltipContent);
         });
 
     let countries_localized = [];
@@ -330,8 +339,6 @@ const generateWorldMap = async function () {
             )
             .style("color", color_reopen);
     };
-
-    // draw(surveyData[0][0]["date"]);
 };
 
-window.onload = generateWorldMap();
+generateWorldMap();
