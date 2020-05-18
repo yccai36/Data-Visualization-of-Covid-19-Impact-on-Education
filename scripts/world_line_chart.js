@@ -3,6 +3,8 @@ const generateWorldLineChart = async () => {
     const dataOriginal = await d3.csv("../datasets/covid_impact_education.csv");
     const dataISO = await d3.json("../datasets/ISO.json");
     // format data
+    const alphaToNum = processISOData(dataISO);
+    const surveyData = processWorldData(dataOriginal, alphaToNum);
     const [dataNational, dataLocalized, dataOpen] = processDataWorldLine(
         dataOriginal,
         dataISO
@@ -403,6 +405,27 @@ const generateWorldLineChart = async () => {
             .attr("stroke", "white")
             .attr("stroke-width", 2)
             .classed("normal", false);
+
+        // update world map
+        let map = d3.select("#world-map");
+
+        let color_sea = "lightblue";
+        let color_healthy = "white";
+        let color_localized = "orange";
+        let color_national = "red";
+        let color_reopen = "lightgreen";
+
+        let colorsMap = [
+            color_healthy,
+            color_sea,
+            color_localized,
+            color_national,
+            color_reopen,
+        ];
+
+        window.worldMapPlaying = false;
+        window.worldMapCurrentDateIndex = newIndex;
+        updateMap(surveyData, map, newIndex, colorsMap);
     });
 
     // ==== User Interactive End === //
