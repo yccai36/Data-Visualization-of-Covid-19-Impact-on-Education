@@ -53,9 +53,9 @@ const generateUSLineChart = async () => {
     const colorOrdered = "red";
     const colorRecommended = "steelblue";
 
-    const width = 900;
+    const width = window.innerWidth * 0.45;
     const height = 500;
-    const div = d3
+    const container = d3
         .select("#us-line-container")
         .style("width", width + "px")
         .style("height", height + "px");
@@ -148,6 +148,24 @@ const generateUSLineChart = async () => {
         .attr("y1", 0)
         .attr("y2", plotHeight);
 
+    const markerGroupFixed = svg
+        .append("g")
+        .attr("id", "marker-fixed-group")
+        .attr(
+            "transform",
+            "translate(" + padding.left + ", " + padding.top + ")"
+        )
+        .style("visibility", "hidden");
+
+    const markerLineFixed = markerGroupFixed
+        .append("line")
+        .attr("id", "marker-line")
+        .attr("fill", "none")
+        .attr("stroke", "#aaa")
+        .attr("stroke-width", "1")
+        .attr("y1", 0)
+        .attr("y2", plotHeight);
+
     // Plot group
     const plot = svg
         .append("g")
@@ -183,7 +201,7 @@ const generateUSLineChart = async () => {
         .selectAll("circle.point")
         .data(dataOrdered)
         .join("circle")
-        .attr("class", "point ordered-point")
+        .attr("class", "point ordered-point normal")
         .attr("id", (d) => "ordered" + d["dateIndex"])
         .attr("r", pointRadius)
         .attr("cx", (d) => dateScale(d["date"]))
@@ -207,7 +225,7 @@ const generateUSLineChart = async () => {
         .selectAll("circle.point")
         .data(dataRecommended)
         .join("circle")
-        .attr("class", "point recommended-point")
+        .attr("class", "point recommended-point normal")
         .attr("id", (d) => "recommended" + d["dateIndex"])
         .attr("r", pointRadius)
         .attr("cx", (d) => dateScale(d["date"]))
@@ -266,6 +284,7 @@ const generateUSLineChart = async () => {
 
     activeRect.on("mouseout", function () {
         markerGroup.style("visibility", "hidden");
+        markerGroupFixed.style("visibility", "hidden");
         activeGroup.style("visibility", "hidden");
 
         tooltip.style("visibility", "hidden");
@@ -274,12 +293,14 @@ const generateUSLineChart = async () => {
             .attr("r", pointRadius)
             .attr("fill", "white")
             .attr("stroke", colorOrdered)
-            .attr("stroke-width", 1);
+            .attr("stroke-width", 1)
+            .classed("normal", true);
         d3.selectAll("circle.recommended-point")
             .attr("r", pointRadius)
             .attr("fill", "white")
             .attr("stroke", colorRecommended)
-            .attr("stroke-width", 1);
+            .attr("stroke-width", 1)
+            .classed("normal", true);
     });
 
     activeRect.on("mousemove", function () {
@@ -324,12 +345,12 @@ const generateUSLineChart = async () => {
         tooltip.html(tooltipContent);
 
         // emphasize points
-        d3.selectAll("circle.ordered-point")
+        d3.selectAll("circle.ordered-point.normal")
             .attr("r", pointRadius)
             .attr("fill", "white")
             .attr("stroke", colorOrdered)
             .attr("stroke-width", 1);
-        d3.selectAll("circle.recommended-point")
+        d3.selectAll("circle.recommended-point.normal")
             .attr("r", pointRadius)
             .attr("fill", "white")
             .attr("stroke", colorRecommended)
@@ -346,6 +367,50 @@ const generateUSLineChart = async () => {
             .attr("fill", colorRecommended)
             .attr("stroke", "white")
             .attr("stroke-width", 2);
+    });
+
+    activeRect.on("click", function () {
+        markerGroupFixed.style("visibility", "visible");
+
+        // marker line
+        // get mouse position
+        let [mouseX, mouseY] = d3.mouse(this);
+        // get mouse corresponding date
+        let mouseDate = dateScale.invert(mouseX);
+        // find the closest date
+        let [newIndex, newDate] = findDate(dataOrdered, mouseDate);
+        let markerX = dateScale(newDate);
+        markerLineFixed.attr("x1", markerX).attr("x2", markerX);
+
+        // emphasize points
+        d3.selectAll("circle.ordered-point")
+            .attr("r", pointRadius)
+            .attr("fill", "white")
+            .attr("stroke", colorOrdered)
+            .attr("stroke-width", 1)
+            .classed("normal", true);
+        d3.selectAll("circle.recommended-point")
+            .attr("r", pointRadius)
+            .attr("fill", "white")
+            .attr("stroke", colorRecommended)
+            .attr("stroke-width", 1)
+            .classed("normal", true);
+
+        d3.select("circle#ordered" + newIndex)
+            .attr("r", pointRadius + 2.5)
+            .attr("fill", colorOrdered)
+            .attr("stroke", "white")
+            .attr("stroke-width", 2)
+            .classed("normal", false);
+
+        d3.select("circle#recommended" + newIndex)
+            .attr("r", pointRadius + 2.5)
+            .attr("fill", colorRecommended)
+            .attr("stroke", "white")
+            .attr("stroke-width", 2)
+            .classed("normal", false);
+
+        // update us map
     });
 
     // ==== User Interactive End === //
