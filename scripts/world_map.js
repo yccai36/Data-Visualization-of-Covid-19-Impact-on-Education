@@ -53,6 +53,7 @@ const generateWorldMap = async function () {
         dataOriginal,
         dataISO
     );
+
     const AlphaToNum = processISOData(dataISO);
     let surveyData = processWorldData(dataOriginal, AlphaToNum);
     const tooltipData = processWorldMapTooltips(surveyData);
@@ -119,10 +120,13 @@ const generateWorldMap = async function () {
     var dateArray = [], currentDateIdx = 0,playing = false;
     var i;
     var formatTime = d3.timeFormat("%m/%d/%Y");
+
     for (i = 0; i < surveyData.length; i++) {
         dateArray.push(formatTime(surveyData[i][0]["date"]));
     }
+
     d3.select('#world-map-clock').html(dateArray[currentDateIdx]);        
+    
     var timer;
     d3.select('#world-map-play') 
     .on('click', function(){
@@ -191,6 +195,7 @@ const generateWorldMap = async function () {
         width - margin.right - xBand.bandwidth() / 2 - xBand.step() * padding - 0.5,
         ]);
         console.log('-=-=-!!=',xLinear(sliderData[96]["date"]));
+
     var y = d3
         .scaleLinear()
         .domain([0, d3.max(sliderData, d => d.value)])
@@ -329,6 +334,7 @@ const generateWorldMap = async function () {
             d3.format("d")(sliderData[idx].countries_reopen) + " affected countries decide to reopen the schools"
         ).style("color",color_reopen);  
     }
+
     function sequenceMap(day) {
         countries_localized = [];
         countries_national = [];

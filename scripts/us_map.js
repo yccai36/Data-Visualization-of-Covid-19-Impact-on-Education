@@ -97,6 +97,9 @@ const usmapGenerator = async function () {
         dateArray.push(data[i][0]["dateString"]);
     }
 
+    d3.select('#us-map-clock').html(dateArray[currentDateIdx]);        
+
+
     // 3c. animate the map
     var timer;
     d3.select("button#us-map-play").on("click", function () {
@@ -107,9 +110,12 @@ const usmapGenerator = async function () {
             timer = setInterval(function () {
                 if (currentDateIdx < dateArray.length - 1) {
                     currentDateIdx += 1;
-                    console.log("currentDateIdx",currentDateIdx);
+                    // console.log("currentDateIdx",currentDateIdx);
+
+                    updateSlider(currentDateIdx);
                     drawMap(currentDateIdx);
-                    console.log("currentDate for us-map-clock:", dateArray[currentDateIdx] );
+
+                    // console.log("currentDate for us-map-clock:", dateArray[currentDateIdx] );
                     d3.select("#us-map-clock").html(dateArray[currentDateIdx]);
                     play = true;
                 } else {
@@ -117,8 +123,9 @@ const usmapGenerator = async function () {
                     currentDateIdx = 0;
                     clearInterval(timer);
                     play = false;
-                    map.selectAll("path").style("fill", "white");
-                    d3.select("#us-map-clock").html("");
+                    // map.selectAll("path").style("fill", "white");
+                    d3.select("#us-map-clock").html("End of Playing");
+
                     drawInitialMap();
                 }
             }, 1000);
@@ -133,7 +140,7 @@ const usmapGenerator = async function () {
     // 4a. helper function for drawing the map of a specific day
     // the input argument is the specific date in Month Day Year
     function drawMap(date) {
-        
+        drawInitialMap();
         var states_ordered_closure = [];
         var states_recommended_closure = [];
 
@@ -158,7 +165,99 @@ const usmapGenerator = async function () {
         });
     }
 
-    // 4b. draw the state of the initial map
+    // 4b. draw the slide bar
+    var width_slider = 1260;
+    var height_slider = 120;
+    var margin_slider = { top: 20, right: 50, bottom: 50, left: 40 };
+
+    var sliderData = d3.range(0, data.length).map(d => ({
+        dayIdx: d,
+        date: data[d][0]["date"],
+        value: 241,
+        // countries_localized: dataLocalized[d]["count"],
+
+        // countries_national:dataNational[d]["count"],
+
+        // countries_reopen:dataOpen[d]["count"] 
+    }));
+
+    console.log("-=-=sliderData-=-=",sliderData);
+
+    var svg_slider = d3
+      .select('div#us-map-slider')
+      .append('svg')
+      .attr('width', width_slider)
+      .attr('height', height_slider);
+
+    var padding = 0.1;
+
+    var xBand = d3
+        .scaleBand()
+        .domain(sliderData.map(d => d.dayIdx))
+        .range([margin_slider.left, width_slider - margin_slider.right])
+        .padding(padding);
+    
+    var xLinear = d3
+        .scaleLinear()
+        .domain([
+            d3.min(sliderData, d => d.date),
+            d3.max(sliderData, d => d.date),
+        ])
+        .range([
+        margin.left + xBand.bandwidth() / 2 + xBand.step() * padding - 0.5,
+        width - margin.right - xBand.bandwidth() / 2 - xBand.step() * padding - 0.5,
+        ]);
+
+    var slider = g =>
+        g.attr('transform', `translate(0, ${height_slider - margin_slider.bottom})`).call(
+        d3.sliderBottom(xLinear)
+            .step(60 * 60 * 12)
+            .tickFormat(d3.timeFormat('%m/%d'))
+            .ticks(10)
+            .on('onchange', value => draw(value))
+    );
+
+    // draw the slider bar
+    svg_slider.append('g').call(slider);
+
+    var draw = selected => {
+        // console.log("selected", selected);
+        var formatTime = d3.timeFormat("%m/%d"); 
+        var curDate =  formatTime(selected);  
+        
+        var startDate = data[0][0]['date'];
+        var dateParse = d3.timeParse("%m/%d");
+        var date_ = dateParse(curDate);
+        date_.setFullYear(2020);
+
+        // counting the index of the current day from the initial starting date
+        var idx = d3.timeDay.count(startDate,date_);
+        console.log("idx", idx);
+        currentDateIdx = idx;
+
+        // updating the date shown on the html text next to the play button
+        d3.select('#us-map-clock').html(dateArray[currentDateIdx]);  
+
+        drawMap(idx);
+
+    };
+
+    // draw the missing first date
+    draw(data[0][0]['date']);
+
+    // update the slider
+    function updateSlider(day){
+        var formatTime = d3.timeFormat("%m/%d"); 
+        var curDate =  formatTime(data[day-1][0]["date"]);
+        var idx = day;
+        
+        d3.select(".parameter-value")
+            .attr("transform", "translate(" + xLinear(data[day][0]["date"]) + ",0)");
+        
+    }
+
+
+    // 4c. draw the state of the initial map
     function drawInitialMap(){
         map.selectAll("path.state")
             .style("fill","lightblue");
