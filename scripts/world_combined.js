@@ -592,7 +592,7 @@ const generateWorldLineChart = async () => {
         let color_healthy = "white";
         let color_localized = "orange";
         let color_national = "red";
-        let color_reopen = "lightgreen";
+        let color_reopen = "white";
 
         let colorsMap = [
             color_healthy,
@@ -602,7 +602,7 @@ const generateWorldLineChart = async () => {
             color_reopen,
         ];
 
-        // update the map to the corresponding date
+        // update the map
         currentDateIndexWorld = newIndex;
         d3.select("#world-map-clock").html(dateArray[currentDateIndexWorld]);
         updateMapWorld(surveyData, map, currentDateIndexWorld, colorsMap);
@@ -610,6 +610,16 @@ const generateWorldLineChart = async () => {
         clearInterval(animationWorld);
         playingWorld = false;
         d3.select("#world-map-play").html("Play");
+        // update slidebar
+        var formatTime = d3.timeFormat("%m/%d");
+        var curDate = formatTime(surveyData[currentDateIndexWorld][0]["date"]);
+        d3.select(".parameter-value").attr(
+            "transform",
+            "translate(" +
+                xLinear(surveyData[currentDateIndexWorld][0]["date"]) +
+                ",0)"
+        );
+        d3.select(".parameter-value text").text(curDate);
     });
 
     // ==== User Interactive End === //
@@ -732,8 +742,8 @@ const generateWorldMap = async function () {
 
     const dataOriginal = await d3.csv("../datasets/covid_impact_education.csv");
     const dataISO = await d3.json("../datasets/ISO.json");
-    const AlphaToNum = processISOData(dataISO);
-    let surveyData = processWorldData(dataOriginal, AlphaToNum);
+    const alphaToNum = processISOData(dataISO);
+    let surveyData = processWorldData(dataOriginal, alphaToNum);
     const tooltipData = processWorldMapTooltips(surveyData);
 
     map.selectAll("path")
@@ -870,12 +880,12 @@ const generateWorldMap = async function () {
         .attr("height", height_slider);
 
     //slide bar does not show the last day when domain is larger than 20s, so change domain of xLinear from[mindate, maxdate] to [mindate, maxdate]
-    var datebug = new Date(surveyData[surveyData.length - 1][0]["date"]);
-    datebug.setDate(datebug.getDate() + 1);
+    var dateEnd = new Date(surveyData[surveyData.length - 1][0]["date"]);
+    dateEnd.setDate(dateEnd.getDate() + 1);
 
-    let xLinear = d3
+    xLinear = d3
         .scaleLinear()
-        .domain([surveyData[0][0]["date"], datebug])
+        .domain([surveyData[0][0]["date"], dateEnd])
         .range([margin.left, width - margin.right]);
 
     let slider = (g) =>
@@ -917,6 +927,7 @@ var animationWorld;
 var playingWorld = false;
 var currentDateIndexWorld = 0;
 var dateArray = [];
+var xLinear;
 
 // ====== Call functions ====== //
 generateWorldLineChart();
