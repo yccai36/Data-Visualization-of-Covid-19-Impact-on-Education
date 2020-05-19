@@ -602,7 +602,7 @@ const generateWorldLineChart = async () => {
             color_reopen,
         ];
 
-        // update the map to the corresponding date
+        // update the map
         currentDateIndexWorld = newIndex;
         d3.select("#world-map-clock").html(dateArray[currentDateIndexWorld]);
         updateMapWorld(surveyData, map, currentDateIndexWorld, colorsMap);
@@ -610,6 +610,16 @@ const generateWorldLineChart = async () => {
         clearInterval(animationWorld);
         playingWorld = false;
         d3.select("#world-map-play").html("Play");
+        // update slidebar
+        var formatTime = d3.timeFormat("%m/%d");
+        var curDate = formatTime(surveyData[currentDateIndexWorld][0]["date"]);
+        d3.select(".parameter-value").attr(
+            "transform",
+            "translate(" +
+                xLinear(surveyData[currentDateIndexWorld][0]["date"]) +
+                ",0)"
+        );
+        d3.select(".parameter-value text").text(curDate);
     });
 
     // ==== User Interactive End === //
@@ -873,7 +883,7 @@ const generateWorldMap = async function () {
     var dateEnd = new Date(surveyData[surveyData.length - 1][0]["date"]);
     dateEnd.setDate(dateEnd.getDate() + 1);
 
-    let xLinear = d3
+    xLinear = d3
         .scaleLinear()
         .domain([surveyData[0][0]["date"], dateEnd])
         .range([margin.left, width - margin.right]);
@@ -917,6 +927,7 @@ var animationWorld;
 var playingWorld = false;
 var currentDateIndexWorld = 0;
 var dateArray = [];
+var xLinear;
 
 // ====== Call functions ====== //
 generateWorldLineChart();
