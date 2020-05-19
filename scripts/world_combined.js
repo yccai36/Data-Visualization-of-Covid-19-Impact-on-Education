@@ -870,12 +870,12 @@ const generateWorldMap = async function () {
         .attr("height", height_slider);
 
     //slide bar does not show the last day when domain is larger than 20s, so change domain of xLinear from[mindate, maxdate] to [mindate, maxdate]
-    var datebug = new Date(surveyData[surveyData.length - 1][0]["date"]);
-    datebug.setDate(datebug.getDate() + 1);
+    var dateEnd = new Date(surveyData[surveyData.length - 1][0]["date"]);
+    dateEnd.setDate(dateEnd.getDate() + 1);
 
     let xLinear = d3
         .scaleLinear()
-        .domain([surveyData[0][0]["date"], datebug])
+        .domain([surveyData[0][0]["date"], dateEnd])
         .range([margin.left, width - margin.right]);
 
     let slider = (g) =>
