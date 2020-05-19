@@ -113,6 +113,10 @@ const usmapGenerator = async function () {
                     // console.log("currentDateIdx",currentDateIdx);
 
                     updateSlider(currentDateIdx);
+
+                    d3.select(".parameter-value text").text(dateArray[currentDateIdx]);
+
+                    // svg_slider.handle([currentDateIndex]);
                     drawMap(currentDateIdx);
 
                     // console.log("currentDate for us-map-clock:", dateArray[currentDateIdx] );
@@ -173,7 +177,7 @@ const usmapGenerator = async function () {
     var sliderData = d3.range(0, data.length).map(d => ({
         dayIdx: d,
         date: data[d][0]["date"],
-        value: 241,
+        
         // countries_localized: dataLocalized[d]["count"],
 
         // countries_national:dataNational[d]["count"],
@@ -189,31 +193,36 @@ const usmapGenerator = async function () {
       .attr('width', width_slider)
       .attr('height', height_slider);
 
-    var padding = 0.1;
+    var datebug = new Date(data[data.length - 1][0]["date"]);
+    // datebug.setHours(datebug.getDate() );
+    datebug.setHours( 11 );
+    datebug.setDate(datebug.getDate() );
 
-    var xBand = d3
-        .scaleBand()
-        .domain(sliderData.map(d => d.dayIdx))
-        .range([margin_slider.left, width_slider - margin_slider.right])
-        .padding(padding);
-    
-    var xLinear = d3
-        .scaleLinear()
-        .domain([
-            d3.min(sliderData, d => d.date),
-            d3.max(sliderData, d => d.date),
-        ])
-        .range([
-        margin.left + xBand.bandwidth() / 2 + xBand.step() * padding - 0.5,
-        width - margin.right - xBand.bandwidth() / 2 - xBand.step() * padding - 0.5,
-        ]);
+    // var xLinear = d3
+    //     .scaleLinear()
+    //     .domain([
+    //         d3.min(sliderData, d => d.date),
+    //         d3.max(sliderData, d => d.date),
+    //     ])
+    //     .range([
+    //      margin.left  + 500,
+    //      width - margin.right  - 500,
+    //     ]);
+
+    let xLinear = d3
+                    .scaleTime()
+                    .domain([data[0][0]["date"], datebug])
+                    .range([margin.left + 400 , width - margin.right - 400 ]);
+
+    console.log(data[0][0]["date"]);
+    console.log(datebug);
 
     var slider = g =>
         g.attr('transform', `translate(0, ${height_slider - margin_slider.bottom})`).call(
         d3.sliderBottom(xLinear)
-            .step(60 * 60 * 12)
+            .step(60 * 60 * 24)
             .tickFormat(d3.timeFormat('%m/%d'))
-            .ticks(10)
+            .ticks(12)
             .on('onchange', value => draw(value))
     );
 
@@ -247,15 +256,11 @@ const usmapGenerator = async function () {
 
     // update the slider
     function updateSlider(day){
-        var formatTime = d3.timeFormat("%m/%d"); 
-        var curDate =  formatTime(data[day-1][0]["date"]);
-        var idx = day;
         
         d3.select(".parameter-value")
             .attr("transform", "translate(" + xLinear(data[day][0]["date"]) + ",0)");
         
     }
-
 
     // 4c. draw the state of the initial map
     function drawInitialMap(){
