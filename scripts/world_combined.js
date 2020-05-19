@@ -893,10 +893,9 @@ const generateWorldMap = async function () {
         let curDate = formatTime(selected);
         let startDate = surveyData[0][0]["date"];
         let dateParse = d3.timeParse("%m/%d");
-        let date_ = dateParse(curDate);
-        date_.setFullYear(2020);
-        let idx = d3.timeDay.count(startDate, date_);
+        let newDate = dateParse(curDate).setFullYear(2020);
 
+        let idx = d3.timeDay.count(startDate, newDate);
         currentDateIndex = idx;
         d3.select("#world-map-clock").html(dateArray[currentDateIndex]);
         updateMapWorld(surveyData, map, currentDateIndex, colors);
