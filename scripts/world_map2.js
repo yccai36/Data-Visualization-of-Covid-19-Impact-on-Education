@@ -210,7 +210,7 @@ const generateWorldMap = async function () {
                     );
                     d3.select(".parameter-value text").text(curDate);
                     // update map to current date
-                    updateMap(surveyData, map, currentDateIndex, colors);
+                    updateMapWorld(surveyData, map, currentDateIndex, colors);
                     d3.select("#world-map-clock").html(
                         dateArray[currentDateIndex]
                     );
@@ -285,7 +285,7 @@ const generateWorldMap = async function () {
 
         currentDateIndex = idx;
         d3.select("#world-map-clock").html(dateArray[currentDateIndex]);
-        updateMap(surveyData, map, currentDateIndex, colors);
+        updateMapWorld(surveyData, map, currentDateIndex, colors);
         clearInterval(animation);
         playing = false;
         d3.select("#world-map-play").html("Play");

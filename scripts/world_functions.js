@@ -145,7 +145,7 @@ const processDataWorldLine = (dataOriginal, dataISO) => {
     return [dataNational, dataLocalized, dataOpen];
 };
 
-const updateMap = (surveyData, map, day, colors) => {
+const updateMapWorld = (surveyData, map, day, colors) => {
     let countries_localized = [];
     let countries_national = [];
     let countries_reopen = [];

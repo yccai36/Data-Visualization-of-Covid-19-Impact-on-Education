@@ -425,7 +425,7 @@ const generateWorldLineChart = async () => {
 
         window.worldMapPlaying = false;
         window.worldMapCurrentDateIndex = newIndex;
-        updateMap(surveyData, map, newIndex, colorsMap);
+        updateMapWorld(surveyData, map, newIndex, colorsMap);
     });
 
     // ==== User Interactive End === //
