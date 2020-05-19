@@ -616,7 +616,7 @@ const generateWorldLineChart = async () => {
         d3.select(".parameter-value").attr(
             "transform",
             "translate(" +
-                xLinear(surveyData[currentDateIndexWorld][0]["date"]) +
+                sliderScale(surveyData[currentDateIndexWorld][0]["date"]) +
                 ",0)"
         );
         d3.select(".parameter-value text").text(curDate);
@@ -829,7 +829,7 @@ const generateWorldMap = async function () {
                     d3.select(".parameter-value").attr(
                         "transform",
                         "translate(" +
-                            xLinear(
+                            sliderScale(
                                 surveyData[currentDateIndexWorld][0]["date"]
                             ) +
                             ",0)"
@@ -879,12 +879,12 @@ const generateWorldMap = async function () {
         .attr("width", width_slider)
         .attr("height", height_slider);
 
-    //slide bar does not show the last day when domain is larger than 20s, so change domain of xLinear from[mindate, maxdate] to [mindate, maxdate]
-    var dateEnd = new Date(surveyData[surveyData.length - 1][0]["date"]);
+    //slide bar does not show the last day when domain is larger than 20s, so change domain of sliderScale from[mindate, maxdate] to [mindate, maxdate]
+    let dateEnd = new Date(surveyData[surveyData.length - 1][0]["date"]);
     dateEnd.setDate(dateEnd.getDate() + 1);
 
-    xLinear = d3
-        .scaleLinear()
+    sliderScale = d3
+        .scaleTime()
         .domain([surveyData[0][0]["date"], dateEnd])
         .range([margin.left, width - margin.right]);
 
@@ -896,7 +896,7 @@ const generateWorldMap = async function () {
             )
             .call(
                 d3
-                    .sliderBottom(xLinear)
+                    .sliderBottom(sliderScale)
                     .step(60 * 60 * 24)
                     .tickFormat(d3.timeFormat("%m/%d"))
                     // .ticks(20)
@@ -927,7 +927,7 @@ var animationWorld;
 var playingWorld = false;
 var currentDateIndexWorld = 0;
 var dateArray = [];
-var xLinear;
+var sliderScale;
 
 // ====== Call functions ====== //
 generateWorldLineChart();
