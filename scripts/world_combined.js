@@ -557,7 +557,6 @@ const generateWorldLineChart = async () => {
         let [newIndex, newDate] = findDate(dataLocalized, mouseDate);
         let markerX = dateScale(newDate);
         markerLineFixed.attr("x1", markerX).attr("x2", markerX);
-        console.log(markerX);
 
         // emphasize points
         d3.selectAll("circle.national-point")
@@ -603,9 +602,14 @@ const generateWorldLineChart = async () => {
             color_reopen,
         ];
 
-        window.worldMapPlaying = false;
-        window.worldMapCurrentDateIndex = newIndex;
-        updateMapWorld(surveyData, map, newIndex, colorsMap);
+        // update the map to the corresponding date
+        currentDateIndexWorld = newIndex;
+        d3.select("#world-map-clock").html(dateArray[currentDateIndexWorld]);
+        updateMapWorld(surveyData, map, currentDateIndexWorld, colorsMap);
+        // pause animation
+        clearInterval(animationWorld);
+        playingWorld = false;
+        d3.select("#world-map-play").html("Play");
     });
 
     // ==== User Interactive End === //
@@ -792,9 +796,6 @@ const generateWorldMap = async function () {
         });
 
     // for COVID spread trend animation
-    let dateArray = [],
-        currentDateIndex = 0,
-        playing = false;
     for (let i = 0; i < surveyData.length; i++) {
         dateArray.push(
             surveyData[i][0]["date"].toLocaleDateString(undefined, {
@@ -804,43 +805,49 @@ const generateWorldMap = async function () {
             })
         );
     }
-    let animation;
     d3.select("#world-map-play").on("click", function () {
-        if (playing == false) {
-            playing = true;
+        if (playingWorld == false) {
+            playingWorld = true;
             d3.select(this).html("Pause");
-            animation = setInterval(function () {
-                if (currentDateIndex <= dateArray.length - 1) {
+            animationWorld = setInterval(function () {
+                if (currentDateIndexWorld <= dateArray.length - 1) {
                     //update slider
                     var formatTime = d3.timeFormat("%m/%d");
                     var curDate = formatTime(
-                        surveyData[currentDateIndex][0]["date"]
+                        surveyData[currentDateIndexWorld][0]["date"]
                     );
                     d3.select(".parameter-value").attr(
                         "transform",
                         "translate(" +
-                            xLinear(surveyData[currentDateIndex][0]["date"]) +
+                            xLinear(
+                                surveyData[currentDateIndexWorld][0]["date"]
+                            ) +
                             ",0)"
                     );
                     d3.select(".parameter-value text").text(curDate);
                     // update map to current date
-                    updateMapWorld(surveyData, map, currentDateIndex, colors);
-                    d3.select("#world-map-clock").html(
-                        dateArray[currentDateIndex]
+                    updateMapWorld(
+                        surveyData,
+                        map,
+                        currentDateIndexWorld,
+                        colors
                     );
-                    currentDateIndex++;
+                    d3.select("#world-map-clock").html(
+                        dateArray[currentDateIndexWorld]
+                    );
+                    currentDateIndexWorld++;
                 } else {
-                    // animation completes
-                    clearInterval(animation);
+                    // animationWorld completes
+                    clearInterval(animationWorld);
                     d3.select("#world-map-play").html("Restart");
-                    currentDateIndex = 0;
-                    playing = false;
+                    currentDateIndexWorld = 0;
+                    playingWorld = false;
                 }
             }, 400);
         } else {
             // pause
-            clearInterval(animation);
-            playing = false;
+            clearInterval(animationWorld);
+            playingWorld = false;
             d3.select(this).html("Resume");
         }
     });
@@ -896,14 +903,20 @@ const generateWorldMap = async function () {
         let newDate = dateParse(curDate).setFullYear(2020);
 
         let idx = d3.timeDay.count(startDate, newDate);
-        currentDateIndex = idx;
-        d3.select("#world-map-clock").html(dateArray[currentDateIndex]);
-        updateMapWorld(surveyData, map, currentDateIndex, colors);
-        clearInterval(animation);
-        playing = false;
+        currentDateIndexWorld = idx;
+        d3.select("#world-map-clock").html(dateArray[currentDateIndexWorld]);
+        updateMapWorld(surveyData, map, currentDateIndexWorld, colors);
+        clearInterval(animationWorld);
+        playingWorld = false;
         d3.select("#world-map-play").html("Play");
     };
 };
+
+// global variables
+var animationWorld;
+var playingWorld = false;
+var currentDateIndexWorld = 0;
+var dateArray = [];
 
 // ====== Call functions ====== //
 generateWorldLineChart();
