@@ -253,8 +253,8 @@ const generateWorldMap = async function () {
     datebug.setDate(datebug.getDate() + 1);
 
     let xLinear = d3
-        .scaleLinear()
-        .domain([surveyData[0][0]["date"], datebug])
+        .scaleDate()
+        .domain([surveyData[0][0]["date"], datebug)
         .range([margin.left, width - margin.right]);
 
     let slider = (g) =>
