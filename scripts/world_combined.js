@@ -658,7 +658,10 @@ const generateWorldMap = async function () {
         .attr("width", width)
         .attr("height", height);
 
-    const legendSVG = d3.select("#world-legend");
+    const legendSVG = d3
+        .select("#world-legend")
+        .attr("width", width)
+        .attr("height", 100);
     var legend_names = [
         "localized closure",
         "nationalized closure",
@@ -675,10 +678,10 @@ const generateWorldMap = async function () {
         .append("rect")
         .attr("stroke", "gray")
         .attr("stroke-width", "0.02em")
-        .attr("x", 10)
-        .attr("y", function (d, i) {
-            return 50 + i * 30;
+        .attr("x", function (d, i) {
+            return 10 + i * 200;
         })
+        .attr("y", 50)
         .attr("width", 20)
         .attr("height", 20)
         .style("fill", (d) => {
@@ -690,10 +693,9 @@ const generateWorldMap = async function () {
         .data(legend_names)
         .enter()
         .append("text")
-        .attr("x", 40)
-        .attr("y", function (d, i) {
-            return 50 + i * 30 + 10;
-        })
+        .attr("x", function (d, i) {
+            return 40 + i * 200})
+        .attr("y", 60)
         .style("fill", "black")
         .text((d) => {
             return d;
