@@ -13,10 +13,10 @@
     </head>
     <body>
         <!-- each plot shows on one svg -->
-        <div class="world">
+        <div id="world">
             <h1>School Closures Around the World</h1>
-            <div id="world-map-legend-container">
-                <svg id="world-map-legend"></svg>
+            <div id="world-legend-container">
+                <svg id="world-legend"></svg>
             </div>
             <div id="world-container">
                 <div id="world-line-container">
@@ -33,14 +33,32 @@
             </div>
         </div>
 
-        <div id="us-line-container">
-            <svg id="us-line"></svg>
+        <div id="us">
+            <h1>School Closures in US</h1>
+            <div id="us-legend-container">
+                <svg id="us-legend"></svg>
+            </div>
+
+            <div id="us-container">
+                <div id="us-line-container">
+                    <svg id="us-line"></svg>
+                </div>
+
+                <div id="us-map-container">
+                    <button id="us-map-play">Play</button>
+                    <span id="us-map-clock"></span>
+
+                    <svg id="us-map"></svg>
+                    <div id="us-map-slider"></div>
+                </div>
+            </div>
         </div>
 
-        <!-- All JS codes imported like this -->
+        <!-- JS codes -->
         <script src="./scripts/world_combined.js"></script>
 
-        <script src="./scripts/us_functions.js"></script>
-        <script src="./scripts/us_line_chart.js"></script>
+        <script src="./scripts/us_combined.js"></script>
+
+        <script src="./scripts/us_map2.js"></script>
     </body>
 </html>

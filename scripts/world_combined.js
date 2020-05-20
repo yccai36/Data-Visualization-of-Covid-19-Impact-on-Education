@@ -658,7 +658,7 @@ const generateWorldMap = async function () {
         .attr("width", width)
         .attr("height", height);
 
-    const legendSVG = d3.select("#world-map-legend");
+    const legendSVG = d3.select("#world-legend");
     var legend_names = [
         "localized closure",
         "nationalized closure",
