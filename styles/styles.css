@@ -1,4 +1,9 @@
 /* ====== General Styles ====== */
+
+body {
+    background-color: #fff9f0;
+}
+
 h1 {
     text-align: center;
     margin: 0;

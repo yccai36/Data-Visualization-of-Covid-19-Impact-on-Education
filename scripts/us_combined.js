@@ -218,7 +218,7 @@ const processDataUSLine = (dataOriginal) => {
 
 const generateUSLineChart = async () => {
     const dataOriginal = await d3.csv(
-        "../datasets/coronavirus-school-closures-data.csv"
+        "datasets/coronavirus-school-closures-data.csv"
     );
     let data = processUSDate(dataOriginal);
     let [dataOrdered, dataRecommended] = processDataUSLine(dataOriginal);
@@ -831,12 +831,12 @@ const generateUSMap = async () => {
     let legendSVG = d3
         .select("#us-legend")
         .attr("height", 60)
-        .attr("width", 350);
+        .attr("width", 550);
 
     // create the list of legend names
-    let legend_names = ["Recommended closure", "Ordered closure"];
+    let legend_names = ["Recommended closure", "Ordered closure", "Open"];
 
-    let legend_range = [colorOrdered, colorRecommended];
+    let legend_range = [colorRecommended, colorOrdered, colorEmpty];
 
     // make the colorscale
     let colorScale = d3.scaleOrdinal().domain(legend_names).range(legend_range);
@@ -871,9 +871,6 @@ const generateUSMap = async () => {
             return 40 + i * 200;
         })
         .attr("y", 30)
-        .style("fill", (d) => {
-            return colorScale(d);
-        })
         .text((d) => {
             return d;
         })
@@ -884,9 +881,9 @@ const generateUSMap = async () => {
 };
 
 // init colors
-const colorOrdered = "green";
-const colorRecommended = "orange";
-const colorEmpty = "lightblue";
+const colorOrdered = "#3282b8";
+const colorRecommended = "#347474";
+const colorEmpty = "#e1f2fb";
 
 // init global variables
 var animationUS;

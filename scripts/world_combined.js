@@ -196,8 +196,8 @@ const updateMapWorld = (surveyData, map, day, colors) => {
 // ======= World Line Chart ====== //
 const generateWorldLineChart = async () => {
     // load orginal data
-    const dataOriginal = await d3.csv("../datasets/covid_impact_education.csv");
-    const dataISO = await d3.json("../datasets/ISO.json");
+    const dataOriginal = await d3.csv("datasets/covid_impact_education.csv");
+    const dataISO = await d3.json("datasets/ISO.json");
     // format data
     const alphaToNum = processISOData(dataISO);
     const surveyData = processWorldData(dataOriginal, alphaToNum);
@@ -690,7 +690,7 @@ const generateWorldMap = async function () {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    const world = await d3.json("../datasets/world.json"); // https://raw.githubusercontent.com/plotly/plotly.js/master/dist/topojson/world_50m.json
+    const world = await d3.json("datasets/world.json"); // https://raw.githubusercontent.com/plotly/plotly.js/master/dist/topojson/world_50m.json
 
     const countries = topojson.feature(
         world,
@@ -714,8 +714,8 @@ const generateWorldMap = async function () {
         })
     );
 
-    const dataOriginal = await d3.csv("../datasets/covid_impact_education.csv");
-    const dataISO = await d3.json("../datasets/ISO.json");
+    const dataOriginal = await d3.csv("datasets/covid_impact_education.csv");
+    const dataISO = await d3.json("datasets/ISO.json");
     const alphaToNum = processISOData(dataISO);
     let surveyData = processWorldData(dataOriginal, alphaToNum);
     const tooltipData = processWorldMapTooltips(surveyData);
@@ -903,8 +903,8 @@ const generateWorldMap = async function () {
 };
 
 // init colors
-const colorNational = "red";
-const colorLocalized = "steelblue";
+const colorNational = "#d92027";
+const colorLocalized = "#f37121";
 const colorOpen = "white";
 const colorSea = "lightblue";
 const colorHealthy = "white";
