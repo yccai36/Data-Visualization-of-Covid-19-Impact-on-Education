@@ -743,20 +743,20 @@ const generateUSMap = async () => {
             playingUS = true;
             d3.select(this).html("Pause");
             animationUS = setInterval(function () {
-                if (currentDateIndexUS < dateArrayUS.length - 1) {
-                    currentDateIndexUS++;
+                if (currentDateIndexUS < dateArrayUS.length) {
                     updateSliderUS(data, currentDateIndexUS, sliderScaleUS);
                     updateMapUS(map, data, currentDateIndexUS);
                     d3.select("#us-map-clock").html(
                         dateArrayUS[currentDateIndexUS]
                     );
+                    currentDateIndexUS++;
                 } else {
                     d3.select("#us-map-play").html("Restart");
                     currentDateIndexUS = 0;
                     clearInterval(animationUS);
                     playingUS = false;
                 }
-            }, 1000);
+            }, 800);
         } else {
             // pause
             clearInterval(animationUS);
