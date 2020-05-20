@@ -237,6 +237,14 @@ const generateUSLineChart = async () => {
     const plotWidth = width - padding.left - padding.right;
     const plotHeight = height - padding.bottom - padding.top;
 
+    const yLable = svg
+        .append("text")
+        .attr("id", "us-line-label")
+        .text("Num. of States")
+        .attr("x", 0)
+        .attr("y", padding.top - 10)
+        .style("font-size", "14px");
+
     // Scales
     const stateScale = d3.scaleLinear().domain([0, 50]).range([plotHeight, 0]);
 

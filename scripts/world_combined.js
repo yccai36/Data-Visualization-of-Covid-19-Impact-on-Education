@@ -219,6 +219,14 @@ const generateWorldLineChart = async () => {
     const plotWidth = width - padding.left - padding.right;
     const plotHeight = height - padding.bottom - padding.top;
 
+    const yLable = svg
+        .append("text")
+        .attr("id", "world-line-label")
+        .text("Num. of Countries")
+        .attr("x", 0)
+        .attr("y", padding.top - 10)
+        .style("font-size", "14px");
+
     // Scales
     const countryScale = d3
         .scaleLinear()
