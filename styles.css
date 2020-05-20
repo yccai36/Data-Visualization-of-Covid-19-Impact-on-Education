@@ -1,0 +1,137 @@
+/* ====== General Styles ====== */
+
+body {
+    background-color: #fff9f0;
+}
+
+h1 {
+    text-align: center;
+    margin: 0;
+}
+
+.legend {
+    text-align: center;
+}
+
+#world,
+#us {
+    margin: 100px 0;
+}
+
+/* ========== World Map Styles ========== */
+
+#world-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+#world-legend-container {
+    position: relative;
+}
+
+#world-map-container {
+    position: relative;
+}
+
+#world-map .Sphere {
+    fill: lightblue;
+}
+
+#world-map .country {
+    fill: white;
+    stroke: rgb(27, 26, 26);
+    stroke-width: 0.2px;
+}
+
+#world-map .country:hover {
+    fill-opacity: 0.5 !important;
+    stroke-width: 1px !important;
+}
+
+#world-map path {
+    fill: none;
+    stroke: #333;
+    stroke-width: 0.5px;
+}
+
+#world-map-container .tooltip {
+    position: absolute;
+    text-align: center;
+    padding: 0 10px;
+    font: 1rem sans-serif;
+    background: rgb(247, 218, 92);
+    border-radius: 5px;
+    pointer-events: none;
+}
+
+/* ========== World Line Chart Styles ========== */
+#world-line .gridlines line {
+    stroke: #bbb;
+}
+
+#world-line .gridlines .domain {
+    stroke: none;
+}
+
+#world-line-container {
+    position: relative;
+}
+
+#world-line-container .line-tooltip {
+    background-color: white;
+    border: 1px black solid;
+    border-radius: 5px;
+    padding: 0 10px;
+    position: absolute;
+}
+
+/* ========== US Line Chart Styles ========== */
+#us-line .gridlines line {
+    stroke: #bbb;
+}
+
+#us-line .gridlines .domain {
+    stroke: none;
+}
+
+#us-line-container {
+    position: relative;
+}
+
+#us-line-container .line-tooltip {
+    background-color: white;
+    border: 1px black solid;
+    border-radius: 5px;
+    padding: 0 10px;
+    position: absolute;
+}
+
+/* ========== US Map Styles ========== */
+
+#us-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+#us-legend-container {
+    position: relative;
+}
+
+#us-map-container {
+    position: relative;
+}
+
+#us-map .state:hover {
+    fill-opacity: 0.5 !important;
+    stroke-width: 1.5px !important;
+}
+
+#us-map-container .tooltip {
+    position: absolute;
+    text-align: center;
+    padding: 0 10px;
+    font: 1rem sans-serif;
+    background: rgb(247, 218, 92);
+    border-radius: 5px;
+    pointer-events: none;
+}
