@@ -132,6 +132,43 @@ const processUSMapTooltipData = (dataOriginal) => {
     return tooltip;
 };
 
+// update US slider
+const updateSliderUS = (data, day, sliderScaleUS) => {
+    let formatTime = d3.timeFormat("%m/%d");
+    d3.select("#us-map-slider .parameter-value").attr(
+        "transform",
+        "translate(" + sliderScaleUS(data[day][0]["date"]) + ",0)"
+    );
+
+    d3.select("#us-map-slider .parameter-value text").text(
+        formatTime(data[day][0]["date"])
+    );
+};
+
+// update US map
+const updateMapUS = (map, data, date) => {
+    map.selectAll("path.state").style("fill", colorEmpty);
+    let states_ordered_closure = [];
+    let states_recommended_closure = [];
+
+    data[date].forEach((row) => {
+        if (row.status == "ordered") {
+            states_ordered_closure.push(row.stateAbbr);
+        } else if (row.status == "recommended") {
+            states_recommended_closure.push(row.stateAbbr);
+        }
+    });
+
+    // color the map
+    states_ordered_closure.forEach((id) => {
+        map.select("path#" + id).style("fill", colorOrdered);
+    });
+
+    states_recommended_closure.forEach((id) => {
+        map.select("path#" + id).style("fill", colorRecommended);
+    });
+};
+
 // ======= US Line Chart ====== //
 // process data to draw US line chart
 const processDataUSLine = (dataOriginal) => {
@@ -183,10 +220,8 @@ const generateUSLineChart = async () => {
     const dataOriginal = await d3.csv(
         "../datasets/coronavirus-school-closures-data.csv"
     );
+    let data = processUSDate(dataOriginal);
     let [dataOrdered, dataRecommended] = processDataUSLine(dataOriginal);
-
-    const colorOrdered = "red";
-    const colorRecommended = "steelblue";
 
     const width = window.innerWidth * 0.45;
     const height = 500;
@@ -545,7 +580,18 @@ const generateUSLineChart = async () => {
             .attr("stroke-width", 2)
             .classed("normal", false);
 
+        let map = d3.select("#us-map");
+
         // update us map
+        currentDateIndexUS = newIndex;
+        updateMapUS(map, data, currentDateIndexUS);
+        d3.select("#us-map-clock").html(dateArrayUS[currentDateIndexUS]);
+        // update slider
+        updateSliderUS(data, currentDateIndexUS, sliderScaleUS);
+        // pause animation
+        clearInterval(animationUS);
+        playingUS = false;
+        d3.select("#us-map-play").html("Play");
     });
 
     // ==== User Interactive End === //
@@ -558,11 +604,7 @@ const generateUSLineChart = async () => {
 // 3. http://bl.ocks.org/rgdonohue/9280446
 // 4. https://bl.ocks.org/d3noob/a22c42db65eb00d4e369
 // 5. https://www.d3-graph-gallery.com/graph/custom_legend.html#cont1
-const generateUSMap = async function () {
-    let color_ordered = "rgb(228, 26, 28)";
-    let color_recommended = "rgb(55, 126, 184)";
-    let colorEmpty = "lightblue";
-
+const generateUSMap = async () => {
     const width = window.innerWidth * 0.45;
     const height = 500;
 
@@ -590,8 +632,6 @@ const generateUSMap = async function () {
         "datasets/coronavirus-school-closures-data.csv"
     );
     let data = processUSDate(dataOriginal);
-    console.log("dataOriginal", dataOriginal);
-    console.log("data", data);
 
     // 1c. Pick out topographic features
     let states = topojson.feature(us, us.objects.states); // convert TOPOJSON to GeoJSON
@@ -633,7 +673,7 @@ const generateUSMap = async function () {
         })
         .attr("d", path)
         .style("stroke", "black")
-        .style("fill", "lightblue")
+        .style("fill", colorEmpty)
         .style("stroke-width", 1)
         .on("mouseover", function (d) {
             tooltip.style("visibility", "visible");
@@ -686,7 +726,13 @@ const generateUSMap = async function () {
     // 3b. generate an array of beginning dats of the virus pandemic from the processed data
 
     for (let i = 0; i < data.length; i++) {
-        dateArrayUS.push(data[i][0]["dateString"]);
+        dateArrayUS.push(
+            data[i][0]["date"].toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+            })
+        );
     }
 
     d3.select("#us-map-clock").html(dateArrayUS[currentDateIndexUS]);
@@ -697,22 +743,13 @@ const generateUSMap = async function () {
             playingUS = true;
             d3.select(this).html("Pause");
             animationUS = setInterval(function () {
-                if (currentDateIndexUS < dateArrayUS.length) {
-                    // console.log("currentDateIndexUS",currentDateIndexUS);
-
-                    updateSlider(currentDateIndexUS);
-
-                    d3.select(".parameter-value text").text(
-                        dateArrayUS[currentDateIndexUS]
-                    );
-
-                    drawMap(currentDateIndexUS);
-
-                    // console.log("currentDate for us-map-clock:", dateArrayUS[currentDateIndexUS] );
+                if (currentDateIndexUS < dateArrayUS.length - 1) {
+                    currentDateIndexUS++;
+                    updateSliderUS(data, currentDateIndexUS, sliderScaleUS);
+                    updateMapUS(map, data, currentDateIndexUS);
                     d3.select("#us-map-clock").html(
                         dateArrayUS[currentDateIndexUS]
                     );
-                    currentDateIndexUS++;
                 } else {
                     d3.select("#us-map-play").html("Restart");
                     currentDateIndexUS = 0;
@@ -723,37 +760,10 @@ const generateUSMap = async function () {
         } else {
             // pause
             clearInterval(animationUS);
-            d3.select(this).html("Resume");
+            d3.select(this).html("Play");
             playingUS = false;
         }
     });
-
-    let drawInitialMap = () => {
-        map.selectAll("path.state").style("fill", colorEmpty);
-    };
-
-    let drawMap = (date) => {
-        drawInitialMap();
-        let states_ordered_closure = [];
-        let states_recommended_closure = [];
-
-        data[date].forEach((row) => {
-            if (row.status == "ordered") {
-                states_ordered_closure.push(row.stateAbbr);
-            } else if (row.status == "recommended") {
-                states_recommended_closure.push(row.stateAbbr);
-            }
-        });
-
-        // color the map
-        states_ordered_closure.forEach((id) => {
-            map.select("path#" + id).style("fill", color_ordered);
-        });
-
-        states_recommended_closure.forEach((id) => {
-            map.select("path#" + id).style("fill", color_recommended);
-        });
-    };
 
     // 4b. draw the slide bar
     let width_slider = width;
@@ -773,7 +783,7 @@ const generateUSMap = async function () {
 
     let dateEnd = new Date(data[data.length - 1][0]["date"]);
 
-    let sliderScaleUS = d3
+    sliderScaleUS = d3
         .scaleTime()
         .domain([data[0][0]["date"], dateEnd])
         .range([margin.left, width - margin.right]);
@@ -801,54 +811,49 @@ const generateUSMap = async function () {
 
         let startDate = data[0][0]["date"];
         let dateParse = d3.timeParse("%m/%d");
-        let date_ = dateParse(curDate);
-        date_.setFullYear(2020);
+        let newDate = dateParse(curDate).setFullYear(2020);
 
         // counting the index of the current day from the initial starting date
-        let idx = d3.timeDay.count(startDate, date_);
-        console.log("idx", idx);
-        currentDateIndexUS = idx;
+        currentDateIndexUS = d3.timeDay.count(startDate, newDate);
 
         // updating the date shown on the html text next to the play button
         d3.select("#us-map-clock").html(dateArrayUS[currentDateIndexUS]);
 
-        drawMap(idx);
-    };
+        updateMapUS(map, data, currentDateIndexUS);
 
-    // update the slider
-    let updateSlider = (day) => {
-        let formatTime = d3.timeFormat("%m/%d");
-        d3.select("#us-map-slider .parameter-value").attr(
-            "transform",
-            "translate(" + sliderScaleUS(data[day][0]["date"]) + ",0)"
-        );
-
-        d3.select("#us-map-slider .parameter-value text").text(
-            formatTime(data[day][0]["date"])
-        );
+        // pause
+        clearInterval(animationUS);
+        d3.select(this).html("Play");
+        playingUS = false;
     };
 
     // 4c. draw the legend
-    let legendSVG = d3.select("#us-legend");
+    let legendSVG = d3
+        .select("#us-legend")
+        .attr("height", 60)
+        .attr("width", 350);
 
     // create the list of legend names
-    let legend_names = ["ordered closure", "recommended closure"];
+    let legend_names = ["Recommended closure", "Ordered closure"];
 
-    let legend_range = [color_ordered, color_recommended];
+    let legend_range = [colorOrdered, colorRecommended];
 
     // make the colorscale
     let colorScale = d3.scaleOrdinal().domain(legend_names).range(legend_range);
 
     // add the square for each legend
     legendSVG
-        .selectAll("mysquare")
+        .selectAll("rect.us-legend-rect")
         .data(legend_names)
         .enter()
         .append("rect")
-        .attr("x", 10)
-        .attr("y", function (d, i) {
-            return 50 + i * 30;
+        .attr("class", "us-legend-rect")
+        .attr("stroke", "gray")
+        .attr("stroke-width", "0.5px")
+        .attr("x", function (d, i) {
+            return 10 + i * 200;
         })
+        .attr("y", 20)
         .attr("width", 20)
         .attr("height", 20)
         .style("fill", (d) => {
@@ -857,14 +862,15 @@ const generateUSMap = async function () {
 
     // add the text for each legend as the name
     legendSVG
-        .selectAll("mylegend")
+        .selectAll("text.us-legend-text")
         .data(legend_names)
         .enter()
         .append("text")
-        .attr("x", 40)
-        .attr("y", function (d, i) {
-            return 50 + i * 30 + 10;
+        .attr("class", "us-legend-text")
+        .attr("x", function (d, i) {
+            return 40 + i * 200;
         })
+        .attr("y", 30)
         .style("fill", (d) => {
             return colorScale(d);
         })
@@ -876,6 +882,11 @@ const generateUSMap = async function () {
         .attr("text-anchor", "start")
         .style("alignment-baseline", "middle");
 };
+
+// init colors
+const colorOrdered = "green";
+const colorRecommended = "orange";
+const colorEmpty = "lightblue";
 
 // init global variables
 var animationUS;

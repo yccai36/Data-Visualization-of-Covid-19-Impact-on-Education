@@ -146,11 +146,7 @@ const generateUSMap = async function () {
                 if (currentDateIndexUS < dateArrayUS.length) {
                     // console.log("currentDateIndexUS",currentDateIndexUS);
 
-                    updateSlider(currentDateIndexUS);
-
-                    d3.select(".parameter-value text").text(
-                        dateArrayUS[currentDateIndexUS]
-                    );
+                    updateSliderUS(currentDateIndexUS);
 
                     drawMap(currentDateIndexUS);
 
@@ -262,7 +258,7 @@ const generateUSMap = async function () {
     };
 
     // update the slider
-    let updateSlider = (day) => {
+    let updateSliderUS = (day) => {
         let formatTime = d3.timeFormat("%m/%d");
         d3.select("#us-map-slider .parameter-value").attr(
             "transform",

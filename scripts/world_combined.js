@@ -151,11 +151,11 @@ const updateMapWorld = (surveyData, map, day, colors) => {
     let countries_national = [];
     let countries_reopen = [];
     let [
-        color_healthy,
-        color_sea,
-        color_localized,
-        color_national,
-        color_reopen,
+        colorHealthy,
+        colorSea,
+        colorLocalized,
+        colorNational,
+        colorOpen,
     ] = colors;
 
     surveyData[day].forEach((row) => {
@@ -168,26 +168,26 @@ const updateMapWorld = (surveyData, map, day, colors) => {
         }
     });
 
-    map.selectAll("path").style("fill", color_healthy);
-    map.select(".Sphere").style("fill", color_sea);
+    map.selectAll("path").style("fill", colorHealthy);
+    map.select(".Sphere").style("fill", colorSea);
 
     countries_localized.forEach((id) => {
         map.select("path#" + id)
-            .style("fill", color_localized)
+            .style("fill", colorLocalized)
             .append("title")
             .text("localized");
     });
 
     countries_national.forEach((id) => {
         map.select("path#" + id)
-            .style("fill", color_national)
+            .style("fill", colorNational)
             .append("title")
             .text("national");
     });
 
     countries_reopen.forEach((id) => {
         map.select("path#" + id)
-            .style("fill", color_reopen)
+            .style("fill", colorOpen)
             .append("title")
             .text("reopen!");
     });
@@ -205,9 +205,6 @@ const generateWorldLineChart = async () => {
         dataOriginal,
         dataISO
     );
-    const colorNational = "red";
-    const colorLocalized = "steelblue";
-    const colorOpen = "yellow";
 
     const width = window.innerWidth * 0.45;
     const height = 500;
@@ -587,20 +584,6 @@ const generateWorldLineChart = async () => {
         // update world map
         let map = d3.select("#world-map");
 
-        let color_sea = "lightblue";
-        let color_healthy = "white";
-        let color_localized = "orange";
-        let color_national = "red";
-        let color_reopen = "white";
-
-        let colorsMap = [
-            color_healthy,
-            color_sea,
-            color_localized,
-            color_national,
-            color_reopen,
-        ];
-
         // update the map
         currentDateIndexWorld = newIndex;
         d3.select("#world-map-clock").html(
@@ -632,20 +615,6 @@ const generateWorldLineChart = async () => {
 // info3300's note for March 4(usmap)
 
 const generateWorldMap = async function () {
-    let color_sea = "lightblue";
-    let color_healthy = "white";
-    let color_localized = "orange";
-    let color_national = "red";
-    let color_reopen = "white";
-
-    let colors = [
-        color_healthy,
-        color_sea,
-        color_localized,
-        color_national,
-        color_reopen,
-    ];
-
     const width = window.innerWidth * 0.45;
     const height = 500;
 
@@ -658,27 +627,31 @@ const generateWorldMap = async function () {
         .attr("width", width)
         .attr("height", height);
 
-    const legendSVG = d3.select("#world-legend");
-    var legend_names = [
-        "localized closure",
-        "nationalized closure",
-        "open/no record",
+    const legendSVG = d3
+        .select("#world-legend")
+        .attr("height", 60)
+        .attr("width", 550);
+    let legend_names = [
+        "Localized closure",
+        "Nationalized closure",
+        "Open / No record",
     ];
-    var legend_range = [color_localized, color_national, color_reopen];
+    let legend_range = [colorLocalized, colorNational, colorOpen];
 
-    var colorScale = d3.scaleOrdinal().domain(legend_names).range(legend_range);
+    let colorScale = d3.scaleOrdinal().domain(legend_names).range(legend_range);
 
     legendSVG
-        .selectAll("mysquare")
+        .selectAll("rect.world-legend-rect")
         .data(legend_names)
         .enter()
         .append("rect")
+        .attr("class", "world-legend-rect")
         .attr("stroke", "gray")
-        .attr("stroke-width", "0.02em")
-        .attr("x", 10)
-        .attr("y", function (d, i) {
-            return 50 + i * 30;
+        .attr("stroke-width", "0.5px")
+        .attr("x", function (d, i) {
+            return 10 + i * 200;
         })
+        .attr("y", 20)
         .attr("width", 20)
         .attr("height", 20)
         .style("fill", (d) => {
@@ -686,14 +659,15 @@ const generateWorldMap = async function () {
         });
 
     legendSVG
-        .selectAll("mylegend")
+        .selectAll("text.world-legend-text")
         .data(legend_names)
         .enter()
         .append("text")
-        .attr("x", 40)
-        .attr("y", function (d, i) {
-            return 50 + i * 30 + 10;
+        .attr("class", "us-legend-text")
+        .attr("x", function (d, i) {
+            return 40 + i * 200;
         })
+        .attr("y", 30)
         .style("fill", "black")
         .text((d) => {
             return d;
@@ -709,7 +683,7 @@ const generateWorldMap = async function () {
         .append("div")
         .attr("class", "tooltip")
         .style("visibility", "hidden");
-    const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+    const margin = { top: 20, right: 20, bottom: 0, left: 20 };
     const mapWidth = width - margin.left - margin.right;
     const mapHeight = height - margin.top - margin.bottom;
     const map = svg
@@ -845,7 +819,7 @@ const generateWorldMap = async function () {
                         surveyData,
                         map,
                         currentDateIndexWorld,
-                        colors
+                        colorsMap
                     );
                     d3.select("#world-map-clock").html(
                         dateArrayWorld[currentDateIndexWorld]
@@ -863,7 +837,7 @@ const generateWorldMap = async function () {
             // pause
             clearInterval(animationWorld);
             playingWorld = false;
-            d3.select(this).html("Resume");
+            d3.select(this).html("Play");
         }
     });
 
@@ -921,14 +895,29 @@ const generateWorldMap = async function () {
         d3.select("#world-map-clock").html(
             dateArrayWorld[currentDateIndexWorld]
         );
-        updateMapWorld(surveyData, map, currentDateIndexWorld, colors);
+        updateMapWorld(surveyData, map, currentDateIndexWorld, colorsMap);
         clearInterval(animationWorld);
         playingWorld = false;
         d3.select("#world-map-play").html("Play");
     };
 };
 
-// global variables
+// init colors
+const colorNational = "red";
+const colorLocalized = "steelblue";
+const colorOpen = "white";
+const colorSea = "lightblue";
+const colorHealthy = "white";
+
+const colorsMap = [
+    colorHealthy,
+    colorSea,
+    colorLocalized,
+    colorNational,
+    colorOpen,
+];
+
+// init global variables
 var animationWorld;
 var playingWorld = false;
 var currentDateIndexWorld = 0;
