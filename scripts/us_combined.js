@@ -684,7 +684,7 @@ const generateUSMap = async () => {
         .on("mousemove", function (d) {
             let [mouseX, mouseY] = d3.mouse(this);
 
-            let tooltipTop = margin.top + mouseY + 20;
+            let tooltipTop = margin.top + mouseY + 40;
             let tooltipBottom = mapHeight - mouseY + margin.bottom + 20;
             let tooltipLeft = margin.left + mouseX + 20;
             let tooltipRight = mapWidth - mouseX + margin.right + 20;
