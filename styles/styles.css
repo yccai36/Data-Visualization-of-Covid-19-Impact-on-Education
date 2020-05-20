@@ -1,6 +1,17 @@
-/*  * Code References:
-    * 1. https://bl.ocks.org/d3noob/a22c42db65eb00d4e369
-*/
+/* ====== General Styles ====== */
+h1 {
+    text-align: center;
+    margin: 0;
+}
+
+.legend {
+    text-align: center;
+}
+
+#world,
+#us {
+    margin: 100px 0;
+}
 
 /* ========== World Map Styles ========== */
 
@@ -28,8 +39,8 @@
 }
 
 #world-map .country:hover {
-    fill-opacity: 0.4 !important;
-    stroke-width: 0.5px !important;
+    fill-opacity: 0.5 !important;
+    stroke-width: 1px !important;
 }
 
 #world-map path {
@@ -103,6 +114,11 @@
 
 #us-map-container {
     position: relative;
+}
+
+#us-map .state:hover {
+    fill-opacity: 0.5 !important;
+    stroke-width: 1.5px !important;
 }
 
 #us-map-container .tooltip {
