@@ -172,18 +172,15 @@ const updateMapWorld = (surveyData, map, day, colors) => {
     map.select(".Sphere").style("fill", colorSea);
 
     countries_localized.forEach((id) => {
-        map.select("path#" + id)
-            .style("fill", colorLocalized);
+        map.select("path#" + id).style("fill", colorLocalized);
     });
 
     countries_national.forEach((id) => {
-        map.select("path#" + id)
-            .style("fill", colorNational);
+        map.select("path#" + id).style("fill", colorNational);
     });
 
     countries_reopen.forEach((id) => {
-        map.select("path#" + id)
-            .style("fill", colorOpen);
+        map.select("path#" + id).style("fill", colorOpen);
     });
 };
 
@@ -632,7 +629,7 @@ const generateWorldMap = async function () {
     const legendSVG = d3
         .select("#world-legend")
         .attr("height", 60)
-        .attr("width", 550);
+        .attr("width", 600);
     let legend_names = [
         "Localized closure",
         "Nationalized closure",
