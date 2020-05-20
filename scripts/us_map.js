@@ -110,16 +110,13 @@ const usmapGenerator = async function () {
             timer = setInterval(function () {
                 if (currentDateIdx < dateArray.length - 1) {
                     currentDateIdx += 1;
-                    // console.log("currentDateIdx",currentDateIdx);
 
                     updateSlider(currentDateIdx);
 
                     d3.select(".parameter-value text").text(dateArray[currentDateIdx]);
 
-                    // svg_slider.handle([currentDateIndex]);
                     drawMap(currentDateIdx);
 
-                    // console.log("currentDate for us-map-clock:", dateArray[currentDateIdx] );
                     d3.select("#us-map-clock").html(dateArray[currentDateIdx]);
                     play = true;
                 } else {
@@ -177,12 +174,6 @@ const usmapGenerator = async function () {
     var sliderData = d3.range(0, data.length).map(d => ({
         dayIdx: d,
         date: data[d][0]["date"],
-        
-        // countries_localized: dataLocalized[d]["count"],
-
-        // countries_national:dataNational[d]["count"],
-
-        // countries_reopen:dataOpen[d]["count"] 
     }));
 
     console.log("-=-=sliderData-=-=",sliderData);
@@ -194,20 +185,8 @@ const usmapGenerator = async function () {
       .attr('height', height_slider);
 
     var datebug = new Date(data[data.length - 1][0]["date"]);
-    // datebug.setHours(datebug.getDate() );
     datebug.setHours( 11 );
     datebug.setDate(datebug.getDate() );
-
-    // var xLinear = d3
-    //     .scaleLinear()
-    //     .domain([
-    //         d3.min(sliderData, d => d.date),
-    //         d3.max(sliderData, d => d.date),
-    //     ])
-    //     .range([
-    //      margin.left  + 500,
-    //      width - margin.right  - 500,
-    //     ]);
 
     let xLinear = d3
                     .scaleTime()
