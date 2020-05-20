@@ -213,8 +213,7 @@ const generateWorldLineChart = async () => {
     const height = 500;
     const container = d3
         .select("#world-line-container")
-        .style("width", width + "px")
-        .style("height", height + "px");
+        .style("width", width + "px");
     const svg = d3
         .select("#world-line")
         .attr("width", width)
@@ -604,7 +603,9 @@ const generateWorldLineChart = async () => {
 
         // update the map
         currentDateIndexWorld = newIndex;
-        d3.select("#world-map-clock").html(dateArray[currentDateIndexWorld]);
+        d3.select("#world-map-clock").html(
+            dateArrayWorld[currentDateIndexWorld]
+        );
         updateMapWorld(surveyData, map, currentDateIndexWorld, colorsMap);
         // pause animation
         clearInterval(animationWorld);
@@ -613,13 +614,13 @@ const generateWorldLineChart = async () => {
         // update slidebar
         var formatTime = d3.timeFormat("%m/%d");
         var curDate = formatTime(surveyData[currentDateIndexWorld][0]["date"]);
-        d3.select(".parameter-value").attr(
+        d3.select("#world-map-slider .parameter-value").attr(
             "transform",
             "translate(" +
-                sliderScale(surveyData[currentDateIndexWorld][0]["date"]) +
+                sliderScaleWorld(surveyData[currentDateIndexWorld][0]["date"]) +
                 ",0)"
         );
-        d3.select(".parameter-value text").text(curDate);
+        d3.select("#world-map-slider .parameter-value text").text(curDate);
     });
 
     // ==== User Interactive End === //
@@ -650,8 +651,7 @@ const generateWorldMap = async function () {
 
     const container = d3
         .select("#world-map-container")
-        .style("width", width + "px")
-        .style("height", height + "px");
+        .style("width", width + "px");
 
     const svg = d3
         .select("#world-map")
@@ -807,7 +807,7 @@ const generateWorldMap = async function () {
 
     // for COVID spread trend animation
     for (let i = 0; i < surveyData.length; i++) {
-        dateArray.push(
+        dateArrayWorld.push(
             surveyData[i][0]["date"].toLocaleDateString(undefined, {
                 year: "numeric",
                 month: "short",
@@ -815,26 +815,31 @@ const generateWorldMap = async function () {
             })
         );
     }
+
+    d3.select("#world-map-clock").html(dateArrayWorld[currentDateIndexWorld]);
+
     d3.select("#world-map-play").on("click", function () {
         if (playingWorld == false) {
             playingWorld = true;
             d3.select(this).html("Pause");
             animationWorld = setInterval(function () {
-                if (currentDateIndexWorld <= dateArray.length - 1) {
+                if (currentDateIndexWorld < dateArrayWorld.length) {
                     //update slider
-                    var formatTime = d3.timeFormat("%m/%d");
-                    var curDate = formatTime(
+                    let formatTime = d3.timeFormat("%m/%d");
+                    let curDate = formatTime(
                         surveyData[currentDateIndexWorld][0]["date"]
                     );
-                    d3.select(".parameter-value").attr(
+                    d3.select("#world-map-slider .parameter-value").attr(
                         "transform",
                         "translate(" +
-                            sliderScale(
+                            sliderScaleWorld(
                                 surveyData[currentDateIndexWorld][0]["date"]
                             ) +
                             ",0)"
                     );
-                    d3.select(".parameter-value text").text(curDate);
+                    d3.select("#world-map-slider .parameter-value text").text(
+                        curDate
+                    );
                     // update map to current date
                     updateMapWorld(
                         surveyData,
@@ -843,7 +848,7 @@ const generateWorldMap = async function () {
                         colors
                     );
                     d3.select("#world-map-clock").html(
-                        dateArray[currentDateIndexWorld]
+                        dateArrayWorld[currentDateIndexWorld]
                     );
                     currentDateIndexWorld++;
                 } else {
@@ -869,7 +874,6 @@ const generateWorldMap = async function () {
     let margin_slider = { top: 20, right: 50, bottom: 50, left: 40 };
 
     let sliderData = d3.range(0, surveyData.length).map((d) => ({
-        //surveyData[d][0]["date"]
         date: surveyData[d][0]["date"],
     }));
 
@@ -879,11 +883,11 @@ const generateWorldMap = async function () {
         .attr("width", width_slider)
         .attr("height", height_slider);
 
-    //slide bar does not show the last day when domain is larger than 20s, so change domain of sliderScale from[mindate, maxdate] to [mindate, maxdate]
+    //slide bar does not show the last day when domain is larger than 20s, so change domain of sliderScaleWorld from[mindate, maxdate] to [mindate, maxdate]
     let dateEnd = new Date(surveyData[surveyData.length - 1][0]["date"]);
     dateEnd.setDate(dateEnd.getDate() + 1);
 
-    sliderScale = d3
+    sliderScaleWorld = d3
         .scaleTime()
         .domain([surveyData[0][0]["date"], dateEnd])
         .range([margin.left, width - margin.right]);
@@ -896,7 +900,7 @@ const generateWorldMap = async function () {
             )
             .call(
                 d3
-                    .sliderBottom(sliderScale)
+                    .sliderBottom(sliderScaleWorld)
                     .step(60 * 60 * 24)
                     .tickFormat(d3.timeFormat("%m/%d"))
                     // .ticks(20)
@@ -914,7 +918,9 @@ const generateWorldMap = async function () {
 
         let idx = d3.timeDay.count(startDate, newDate);
         currentDateIndexWorld = idx;
-        d3.select("#world-map-clock").html(dateArray[currentDateIndexWorld]);
+        d3.select("#world-map-clock").html(
+            dateArrayWorld[currentDateIndexWorld]
+        );
         updateMapWorld(surveyData, map, currentDateIndexWorld, colors);
         clearInterval(animationWorld);
         playingWorld = false;
@@ -926,8 +932,8 @@ const generateWorldMap = async function () {
 var animationWorld;
 var playingWorld = false;
 var currentDateIndexWorld = 0;
-var dateArray = [];
-var sliderScale;
+var dateArrayWorld = [];
+var sliderScaleWorld;
 
 // ====== Call functions ====== //
 generateWorldLineChart();

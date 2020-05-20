@@ -4,21 +4,17 @@
 // 3. http://bl.ocks.org/rgdonohue/9280446
 // 4. https://bl.ocks.org/d3noob/a22c42db65eb00d4e369
 // 5. https://www.d3-graph-gallery.com/graph/custom_legend.html#cont1
-
 const generateUSMap = async function () {
-    let dateArray = [];
-    let currentDateIdx = 0;
-    let play = false;
     let color_ordered = "rgb(228, 26, 28)";
     let color_recommended = "rgb(55, 126, 184)";
+    let colorEmpty = "lightblue";
 
     const width = window.innerWidth * 0.45;
     const height = 500;
 
     const container = d3
         .select("#us-map-container")
-        .style("width", width + "px")
-        .style("height", height + "px");
+        .style("width", width + "px");
 
     const svg = d3
         .select("#us-map")
@@ -33,7 +29,7 @@ const generateUSMap = async function () {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    // const us = await d3.json("datasets/us.json");
+    const us = await d3.json("datasets/us.json");
 
     // 3a. loading csv data
     const dataOriginal = await d3.csv(
@@ -71,6 +67,8 @@ const generateUSMap = async function () {
         .attr("class", "tooltip")
         .style("visibility", "hidden");
 
+    const tooltipData = processUSMapTooltipData(dataOriginal);
+
     // 2a. Draw a  map of states with white stroke
     map.selectAll("path.state")
         .data(states.features)
@@ -97,10 +95,19 @@ const generateUSMap = async function () {
             let tooltipLeft = margin.left + mouseX + 20;
             let tooltipRight = mapWidth - mouseX + margin.right + 20;
 
-            let stateAbbr = d[id];
-            let 
+            let stateAbbr = idToStateName[d.id];
+            let currentTooltipData = tooltipData[stateAbbr];
+            let currentState = currentTooltipData["stateName"];
+            let currentStartDate = currentTooltipData[
+                "startDate"
+            ].toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+            });
 
-            let tooltipContent = `<p></p>`;
+            let currentStatus = currentTooltipData["status"];
+
+            let tooltipContent = `<p>${currentState}</p><p>Closure Start Date: ${currentStartDate}</p><p>Closure Status: ${currentStatus}</p>`;
 
             if (tooltipTop < height * (2 / 3)) {
                 tooltip.style("top", tooltipTop + "px").style("bottom", "auto");
@@ -120,68 +127,58 @@ const generateUSMap = async function () {
                     .style("right", tooltipRight + "px");
             }
             tooltip.html(tooltipContent);
-
-            // when the mouse is on the map, display the states Abbrvation
-            tooltip.transition().duration(200).style("opacity", 0.8);
-            tooltip
-                .html("StateAbbr:" + "<br>" + idToStateName[d.id])
-                .style("left", d3.event.pageX + "px")
-                .style("top", d3.event.pageY - 26 + "px");
         });
 
     // 3b. generate an array of beginning dats of the virus pandemic from the processed data
+
     for (let i = 0; i < data.length; i++) {
-        dateArray.push(data[i][0]["dateString"]);
+        dateArrayUS.push(data[i][0]["dateString"]);
     }
 
-    d3.select("#us-map-clock").html(dateArray[currentDateIdx]);
+    d3.select("#us-map-clock").html(dateArrayUS[currentDateIndexUS]);
 
     // 3c. animate the map
-    let timer;
     d3.select("button#us-map-play").on("click", function () {
-        console.log("click!");
-        if (play == false) {
-            console.log("play is false");
-            d3.select(this).html("stop");
-            timer = setInterval(function () {
-                if (currentDateIdx < dateArray.length - 1) {
-                    currentDateIdx += 1;
-                    // console.log("currentDateIdx",currentDateIdx);
+        if (playingUS == false) {
+            playingUS = true;
+            d3.select(this).html("Pause");
+            animationUS = setInterval(function () {
+                if (currentDateIndexUS < dateArrayUS.length) {
+                    // console.log("currentDateIndexUS",currentDateIndexUS);
 
-                    updateSlider(currentDateIdx);
+                    updateSlider(currentDateIndexUS);
 
                     d3.select(".parameter-value text").text(
-                        dateArray[currentDateIdx]
+                        dateArrayUS[currentDateIndexUS]
                     );
 
-                    // svg_slider.handle([currentDateIndex]);
-                    drawMap(currentDateIdx);
+                    drawMap(currentDateIndexUS);
 
-                    // console.log("currentDate for us-map-clock:", dateArray[currentDateIdx] );
-                    d3.select("#us-map-clock").html(dateArray[currentDateIdx]);
-                    play = true;
+                    // console.log("currentDate for us-map-clock:", dateArrayUS[currentDateIndexUS] );
+                    d3.select("#us-map-clock").html(
+                        dateArrayUS[currentDateIndexUS]
+                    );
+                    currentDateIndexUS++;
                 } else {
-                    d3.select("#us-map-play").html("play");
-                    currentDateIdx = 0;
-                    clearInterval(timer);
-                    play = false;
-                    // map.selectAll("path").style("fill", "white");
-                    d3.select("#us-map-clock").html("End of Playing");
-
-                    drawInitialMap();
+                    d3.select("#us-map-play").html("Restart");
+                    currentDateIndexUS = 0;
+                    clearInterval(animationUS);
+                    playingUS = false;
                 }
             }, 1000);
         } else {
-            console.log("play is true");
-            clearInterval(timer);
-            d3.select(this).html("play");
-            play = false;
+            // pause
+            clearInterval(animationUS);
+            d3.select(this).html("Resume");
+            playingUS = false;
         }
     });
 
-    // 4a. helper function for drawing the map of a specific day
-    // the input argument is the specific date in Month Day Year
-    function drawMap(date) {
+    let drawInitialMap = () => {
+        map.selectAll("path.state").style("fill", colorEmpty);
+    };
+
+    let drawMap = (date) => {
         drawInitialMap();
         let states_ordered_closure = [];
         let states_recommended_closure = [];
@@ -195,7 +192,6 @@ const generateUSMap = async function () {
         });
 
         // color the map
-        console.log("begin cloring");
         states_ordered_closure.forEach((id) => {
             map.select("path#" + id).style("fill", color_ordered);
         });
@@ -203,25 +199,17 @@ const generateUSMap = async function () {
         states_recommended_closure.forEach((id) => {
             map.select("path#" + id).style("fill", color_recommended);
         });
-    }
+    };
 
     // 4b. draw the slide bar
-    let width_slider = 1260;
-    let height_slider = 120;
+    let width_slider = width;
+    let height_slider = 100;
     let margin_slider = { top: 20, right: 50, bottom: 50, left: 40 };
 
     let sliderData = d3.range(0, data.length).map((d) => ({
         dayIdx: d,
         date: data[d][0]["date"],
-
-        // countries_localized: dataLocalized[d]["count"],
-
-        // countries_national:dataNational[d]["count"],
-
-        // countries_reopen:dataOpen[d]["count"]
     }));
-
-    console.log("-=-=sliderData-=-=", sliderData);
 
     let svg_slider = d3
         .select("div#us-map-slider")
@@ -229,29 +217,12 @@ const generateUSMap = async function () {
         .attr("width", width_slider)
         .attr("height", height_slider);
 
-    let datebug = new Date(data[data.length - 1][0]["date"]);
-    // datebug.setHours(datebug.getDate() );
-    datebug.setHours(11);
-    datebug.setDate(datebug.getDate());
+    let dateEnd = new Date(data[data.length - 1][0]["date"]);
 
-    // let xLinear = d3
-    //     .scaleLinear()
-    //     .domain([
-    //         d3.min(sliderData, d => d.date),
-    //         d3.max(sliderData, d => d.date),
-    //     ])
-    //     .range([
-    //      margin.left  + 500,
-    //      width - margin.right  - 500,
-    //     ]);
-
-    let xLinear = d3
+    let sliderScaleUS = d3
         .scaleTime()
-        .domain([data[0][0]["date"], datebug])
-        .range([margin.left + 400, width - margin.right - 400]);
-
-    console.log(data[0][0]["date"]);
-    console.log(datebug);
+        .domain([data[0][0]["date"], dateEnd])
+        .range([margin.left, width - margin.right]);
 
     let slider = (g) =>
         g
@@ -261,10 +232,9 @@ const generateUSMap = async function () {
             )
             .call(
                 d3
-                    .sliderBottom(xLinear)
+                    .sliderBottom(sliderScaleUS)
                     .step(60 * 60 * 24)
                     .tickFormat(d3.timeFormat("%m/%d"))
-                    .ticks(12)
                     .on("onchange", (value) => draw(value))
             );
 
@@ -272,7 +242,6 @@ const generateUSMap = async function () {
     svg_slider.append("g").call(slider);
 
     let draw = (selected) => {
-        // console.log("selected", selected);
         let formatTime = d3.timeFormat("%m/%d");
         let curDate = formatTime(selected);
 
@@ -284,41 +253,37 @@ const generateUSMap = async function () {
         // counting the index of the current day from the initial starting date
         let idx = d3.timeDay.count(startDate, date_);
         console.log("idx", idx);
-        currentDateIdx = idx;
+        currentDateIndexUS = idx;
 
         // updating the date shown on the html text next to the play button
-        d3.select("#us-map-clock").html(dateArray[currentDateIdx]);
+        d3.select("#us-map-clock").html(dateArrayUS[currentDateIndexUS]);
 
         drawMap(idx);
     };
 
-    // draw the missing first date
-    draw(data[0][0]["date"]);
-
     // update the slider
-    function updateSlider(day) {
-        d3.select(".parameter-value").attr(
+    let updateSlider = (day) => {
+        let formatTime = d3.timeFormat("%m/%d");
+        d3.select("#us-map-slider .parameter-value").attr(
             "transform",
-            "translate(" + xLinear(data[day][0]["date"]) + ",0)"
+            "translate(" + sliderScaleUS(data[day][0]["date"]) + ",0)"
         );
-    }
 
-    // 4c. draw the state of the initial map
-    function drawInitialMap() {
-        map.selectAll("path.state").style("fill", "lightblue");
-    }
+        d3.select("#us-map-slider .parameter-value text").text(
+            formatTime(data[day][0]["date"])
+        );
+    };
 
     // 4c. draw the legend
-    let legendSVG = d3.select("#legend");
+    let legendSVG = d3.select("#us-legend");
 
     // create the list of legend names
     let legend_names = ["ordered closure", "recommended closure"];
 
+    let legend_range = [color_ordered, color_recommended];
+
     // make the colorscale
-    let colorScale = d3
-        .scaleOrdinal()
-        .domain(legend_names)
-        .range(d3.schemeSet1);
+    let colorScale = d3.scaleOrdinal().domain(legend_names).range(legend_range);
 
     // add the square for each legend
     legendSVG
@@ -357,4 +322,10 @@ const generateUSMap = async function () {
         .attr("text-anchor", "start")
         .style("alignment-baseline", "middle");
 };
+var animationUS;
+var playingUS = false;
+var dateArrayUS = [];
+var currentDateIndexUS = 0;
+var sliderScaleUS;
+
 generateUSMap();

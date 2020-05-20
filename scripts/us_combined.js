@@ -94,6 +94,44 @@ const processUSDate = (dataOriginal) => {
     return newData;
 };
 
+const processUSMapTooltipData = (dataOriginal) => {
+    const dateParser = d3.timeParse("%m/%d/%y");
+
+    let dataFiltered = dataOriginal.filter((element) => {
+        return (
+            element["State Abbreviation"].length === 2 &&
+            element["State Abbreviation"] != "VI"
+        );
+    });
+
+    let tooltip = {};
+    dataFiltered.forEach((element) => {
+        let stateName = element["State"].trim();
+        let stateAbbr = element["State Abbreviation"];
+        let startDateString = element["State Closure Start Date"];
+        let startDate = dateParser(startDateString);
+        let status = element["State Status"];
+        if (status === "State ordered closure") {
+            status = "ordered";
+        } else {
+            status = "recommended";
+        }
+        let schoolNum = element["State Number of Public Schools"];
+        let enrollmentNum = element["State Public School Enrollment"];
+
+        tooltip[stateAbbr] = {
+            stateName: stateName,
+            startDate: startDate,
+            startDateString: startDateString,
+            status: status,
+            schoolNum: schoolNum,
+            enrollmentNum: enrollmentNum,
+        };
+    });
+
+    return tooltip;
+};
+
 // ======= US Line Chart ====== //
 // process data to draw US line chart
 const processDataUSLine = (dataOriginal) => {

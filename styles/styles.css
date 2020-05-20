@@ -38,15 +38,6 @@
     stroke-width: 0.5px;
 }
 
-#world-map-wrapper {
-    width: 960px;
-    margin: -30px auto 0;
-}
-
-#world-map-clock {
-    left: 65px;
-}
-
 #world-map-container .tooltip {
     position: absolute;
     text-align: center;
@@ -77,37 +68,6 @@
     padding: 0 10px;
     position: absolute;
 }
-/* ----------us map styles-------------- */
-
-#us-map-clock #us-map-play {
-    position: absolute;
-    top: 20px;
-}
-
-#us-map-clock {
-    left: 65px;
-}
-
-#us-map-play {
-    left: 15px;
-}
-
-#us-map-wrapper div.tooltip {
-    position: absolute;
-    text-align: left;
-    width: 60px;
-    height: 30px;
-    padding: 3px;
-    font: 12px sans-serif;
-    background: lightyellow;
-    border: 0px;
-    border-radius: 8px;
-    pointer-events: none;
-}
-
-#legend {
-    margin: auto;
-}
 
 /* ========== US Line Chart Styles ========== */
 #us-line .gridlines line {
@@ -128,4 +88,29 @@
     border-radius: 5px;
     padding: 0 10px;
     position: absolute;
+}
+
+/* ========== US Map Styles ========== */
+
+#us-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+#us-legend-container {
+    position: relative;
+}
+
+#us-map-container {
+    position: relative;
+}
+
+#us-map-container .tooltip {
+    position: absolute;
+    text-align: center;
+    padding: 0 10px;
+    font: 1rem sans-serif;
+    background: rgb(247, 218, 92);
+    border-radius: 5px;
+    pointer-events: none;
 }
