@@ -617,6 +617,13 @@ const generateUSMap = async () => {
         .attr("width", width)
         .attr("height", height);
 
+    //zoom
+    svg.call(
+        d3.zoom().on("zoom", () => {
+            map.attr("transform", d3.event.transform);
+        })
+    );
+
     const margin = { top: 20, right: 20, bottom: 20, left: 20 };
     const mapWidth = width - margin.left - margin.right;
     const mapHeight = height - margin.top - margin.bottom;
