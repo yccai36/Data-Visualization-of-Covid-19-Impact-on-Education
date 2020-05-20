@@ -881,8 +881,8 @@ const generateUSMap = async () => {
 };
 
 // init colors
-const colorOrdered = "#3282b8";
-const colorRecommended = "#347474";
+const colorOrdered = "#e43f5a";
+const colorRecommended = "#ffa372";
 const colorEmpty = "#e1f2fb";
 
 // init global variables
