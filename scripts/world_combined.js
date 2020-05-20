@@ -173,23 +173,17 @@ const updateMapWorld = (surveyData, map, day, colors) => {
 
     countries_localized.forEach((id) => {
         map.select("path#" + id)
-            .style("fill", color_localized)
-            .append("title")
-            .text("localized");
+            .style("fill", color_localized);
     });
 
     countries_national.forEach((id) => {
         map.select("path#" + id)
-            .style("fill", color_national)
-            .append("title")
-            .text("national");
+            .style("fill", color_national);
     });
 
     countries_reopen.forEach((id) => {
         map.select("path#" + id)
-            .style("fill", color_reopen)
-            .append("title")
-            .text("reopen!");
+            .style("fill", color_reopen);
     });
 };
 
