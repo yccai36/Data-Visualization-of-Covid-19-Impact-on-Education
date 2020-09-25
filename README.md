@@ -1,4 +1,4 @@
-# Data Visualization: COVID-19 Impact on Education
+# Data Visualization of COVID-19 Impact on Education
 
 ## Project Report
 [Project Report](report.pdf)
